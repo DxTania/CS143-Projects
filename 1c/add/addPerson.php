@@ -6,6 +6,7 @@ $mysqli->close();
 
 /**
  * Add actor or director based on POST parameters
+ * @param $mysqli mysqli object
  */
 function add_person($mysqli) {
   $first_name = $_POST['firstName'];
@@ -36,6 +37,7 @@ function add_person($mysqli) {
 
 /**
  * Insert new actor into Actor table
+ * @param $mysqli mysqli object
  */
 function insert_actor($mysqli, $id, $last, $first, $sex, $dob, $dod) {
   if ($dod != null) {
@@ -55,6 +57,7 @@ function insert_actor($mysqli, $id, $last, $first, $sex, $dob, $dod) {
 
 /**
  * Insert new director into Director table
+ * @param $mysqli mysqli object
  */
 function insert_director($mysqli, $id, $last, $first, $dob, $dod) {
   // TODO: deal with director id = actor id, unique name?
@@ -74,7 +77,8 @@ function insert_director($mysqli, $id, $last, $first, $dob, $dod) {
 }
 
 /**
- * @return id of next person
+ * @param $mysqli mysqli object
+ * @return integer id of next person
  */
 function get_next_person_id($mysqli) {
   $result = $mysqli->query("SELECT id FROM MaxPersonID");
