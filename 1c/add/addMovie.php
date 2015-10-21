@@ -50,6 +50,7 @@
                   $rating = $row["rating"];
                   echo "<option value='$rating'>$rating</option>";
                 }
+                $mysqli->close();
               ?>
             </select>
           </label>
@@ -75,6 +76,7 @@
                     <label for='$genre'>$genre</label>
                   </div>";
           }
+          $mysqli->close();
           ?>
         </div>
       </div>
@@ -116,18 +118,13 @@
   </div>
 </footer>
 
-<script>
-  document.write('<script src=js/vendor/' +
-      ('__proto__' in {} ? 'zepto' : 'jquery') +
-      '.js><\/script>')
-</script>
 <script src="../js/vendor/jquery.js"></script>
 <script src="../js/foundation.min.js"></script>
 <script>
   $(document).foundation();
 
   $('#movie-form').on('valid.fndtn.abide', function () {
-    $.post( "addMoviePost.php", $( "#add-form" ).serialize(), function(data) {
+    $.post( "addMoviePost.php", $( "#movie-form" ).serialize(), function(data) {
       alert(data); // TODO: go to show movie page
     });
   });

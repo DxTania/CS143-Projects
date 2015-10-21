@@ -1,12 +1,12 @@
 <?php
 
-$first_name=$_POST['firstName'];
-$last_name=$_POST['lastName'];
-$identity=$_POST['identity'];
-$status=$_POST['status'];
-$dob=date("Y-m-d", strtotime($_POST['dob']));
+$first_name = $_POST['firstName'];
+$last_name = $_POST['lastName'];
+$identity = $_POST['identity'];
+$status = $_POST['status'];
+$dob = date("Y-m-d", strtotime($_POST['dob']));
 $dod = null;
-$sex=null;
+$sex = null;
 
 if (strcmp($status, 'dead') === 0) {
   $dod = date("Y-m-d", strtotime($_POST['dod']));
@@ -19,11 +19,11 @@ if (strcmp($identity, 'director') === 0) {
   // TODO: deal with director id = actor id, unique name?
 
   if ($dod != null) {
-    $stmt = $mysqli->prepare("INSERT INTO Director(id, last, first, dob, dod) VALUES(?, ?, ?, ?, ?)");
-    $stmt->bind_param("issss", $id, $last_name, $first_name, $dob, $dod);
+    $stmt = $mysqli->prepare("INSERT INTO Director(id, last, first, dob, dod) VALUES($id, ?, ?, ?, ?)");
+    $stmt->bind_param("ssss", $last_name, $first_name, $dob, $dod);
   } else {
-    $stmt = $mysqli->prepare("INSERT INTO Director(id, last, first, dob, dod) VALUES(?, ?, ?, ?, NULL)");
-    $stmt->bind_param("isss", $id, $last_name, $first_name, $dob);
+    $stmt = $mysqli->prepare("INSERT INTO Director(id, last, first, dob, dod) VALUES($id, ?, ?, ?, NULL)");
+    $stmt->bind_param("sss", $last_name, $first_name, $dob);
   }
 
   if (!$stmt->execute()) {
@@ -36,11 +36,11 @@ if (strcmp($identity, 'director') === 0) {
   $sex=$_POST['sex'];
 
   if ($dod != null) {
-    $stmt = $mysqli->prepare("INSERT INTO Actor(id, last, first, sex, dob, dod) VALUES(?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("isssss", $id, $last_name, $first_name, $sex, $dob, $dod);
+    $stmt = $mysqli->prepare("INSERT INTO Actor(id, last, first, sex, dob, dod) VALUES($id, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssss", $last_name, $first_name, $sex, $dob, $dod);
   } else {
-    $stmt = $mysqli->prepare("INSERT INTO Actor(id, last, first, sex, dob, dod) VALUES(?, ?, ?, ?, ?, NULL)");
-    $stmt->bind_param("issss", $id, $last_name, $first_name, $sex, $dob);
+    $stmt = $mysqli->prepare("INSERT INTO Actor(id, last, first, sex, dob, dod) VALUES($id, ?, ?, ?, ?, NULL)");
+    $stmt->bind_param("ssss", $last_name, $first_name, $sex, $dob);
   }
 
   if (!$stmt->execute()) {
