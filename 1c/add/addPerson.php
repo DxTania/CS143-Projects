@@ -53,3 +53,4 @@ if (strcmp($identity, 'director') === 0) {
   echo "Error";
 }
 
+$mysqli->close();
