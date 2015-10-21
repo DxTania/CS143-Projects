@@ -3,7 +3,7 @@ $mysqli = new mysqli("localhost", "cs143", "", "CS143");
 
 add_movie($mysqli,
   $_POST['title'],
-  $_POST['year'],
+  $_POST['year'], // TODO: not null in create ?
   $_POST['rating'],
   $_POST['company'],
   isset($_POST['genres']) ? $_POST['genres'] : array());
@@ -15,7 +15,7 @@ $mysqli->close();
  * @param $mysqli mysqli object
  */
 function add_movie($mysqli, $title, $year, $rating, $company, $genres) {
-  $id = get_next_movie_id($mysqli); // TODO: Get from MaxMovieId table
+  $id = get_next_movie_id($mysqli);
 
   $stmt = $mysqli->prepare("INSERT INTO Movie(id, title, year, rating, company) VALUES($id, ?, ?, ?, ?)");
   $stmt->bind_param("siss", $title, $year, $rating, $company);
