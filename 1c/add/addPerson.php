@@ -1,7 +1,7 @@
 <?php
 
-$firstName=$_POST['firstName'];
-$lastName=$_POST['lastName'];
+$first_name=$_POST['firstName'];
+$last_name=$_POST['lastName'];
 $identity=$_POST['identity'];
 $status=$_POST['status'];
 $dob=date("Y-m-d", strtotime($_POST['dob']));
@@ -20,16 +20,16 @@ if (strcmp($identity, 'director') === 0) {
 
   if ($dod != null) {
     $stmt = $mysqli->prepare("INSERT INTO Director(id, last, first, dob, dod) VALUES(?, ?, ?, ?, ?)");
-    $stmt->bind_param("issss", $id, $lastName, $firstName, $dob, $dod);
+    $stmt->bind_param("issss", $id, $last_name, $first_name, $dob, $dod);
   } else {
     $stmt = $mysqli->prepare("INSERT INTO Director(id, last, first, dob, dod) VALUES(?, ?, ?, ?, NULL)");
-    $stmt->bind_param("isss", $id, $lastName, $firstName, $dob);
+    $stmt->bind_param("isss", $id, $last_name, $first_name, $dob);
   }
 
   if (!$stmt->execute()) {
     echo "Failure";
   } else {
-    echo "$firstName $lastName was added as a director!";
+    echo "$first_name $last_name was added as a director!";
   }
 
 } else if (strcmp($identity, 'actor') === 0){
@@ -37,16 +37,16 @@ if (strcmp($identity, 'director') === 0) {
 
   if ($dod != null) {
     $stmt = $mysqli->prepare("INSERT INTO Actor(id, last, first, sex, dob, dod) VALUES(?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("isssss", $id, $lastName, $firstName, $sex, $dob, $dod);
+    $stmt->bind_param("isssss", $id, $last_name, $first_name, $sex, $dob, $dod);
   } else {
     $stmt = $mysqli->prepare("INSERT INTO Actor(id, last, first, sex, dob, dod) VALUES(?, ?, ?, ?, ?, NULL)");
-    $stmt->bind_param("issss", $id, $lastName, $firstName, $sex, $dob);
+    $stmt->bind_param("issss", $id, $last_name, $first_name, $sex, $dob);
   }
 
   if (!$stmt->execute()) {
     echo "Failure";
   } else {
-    echo "$firstName $lastName was added as an actor!";
+    echo "$first_name $last_name was added as an actor!";
   }
 
 } else {
