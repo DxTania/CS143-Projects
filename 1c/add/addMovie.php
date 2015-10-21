@@ -27,21 +27,21 @@
       <div class="row">
         <div class="large-9 columns end">
           <label for="movie-title">Movie Title</label>
-          <input id="movie-title" type="text" name="firstName" placeholder="Title" required/>
+          <input id="movie-title" type="text" name="title" placeholder="Title" maxlength="100" required/>
           <small class="error">Movie title is required</small>
         </div>
       </div>
       <div class="row">
         <div class="large-3 small-3 columns">
           <label for="release-year">Release Year</label>
-          <input id="release-year" type="text" name="releaseYear" pattern="^[0-9][0-9][0-9][0-9]$" placeholder="YYYY"/>
+          <input id="release-year" type="text" name="year" pattern="^[0-9][0-9][0-9][0-9]$" maxlength="4" placeholder="YYYY"/>
           <small class="error">Release year must be valid</small>
         </div>
       </div>
       <div class="row">
         <div class="large-3 small-3 columns">
           <label>MPAA Rating
-            <select>
+            <select name="rating">
               <?php
                 $mysqli = new mysqli("localhost", "cs143", "", "CS143");
                 $ratings = $mysqli->query("SELECT DISTINCT rating FROM Movie ORDER BY rating");
@@ -58,11 +58,11 @@
       <div class="row">
         <div class="large-9 columns end">
           <label for="company">Production Company</label>
-          <input id="company" type="text" name="company" placeholder="Company name"/>
+          <input id="company" type="text" name="company" placeholder="Company name" maxlength="50"/>
         </div>
       </div>
       <div class="row">
-        <div class="large-12 columns">
+        <div class="large-9 columns end">
           <label>Genres</label>
           <?php
           $mysqli = new mysqli("localhost", "cs143", "", "CS143");
@@ -71,7 +71,7 @@
           while($row = $genres->fetch_assoc()) {
             $genre = $row["genre"];
             echo "<div class='inline-block'>
-                    <input type='checkbox' value='$genre' id='$genre'/>
+                    <input type='checkbox' name='genres[]' value='$genre' id='$genre'/>
                     <label for='$genre'>$genre</label>
                   </div>";
           }
