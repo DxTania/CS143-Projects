@@ -13,10 +13,9 @@
   }
 
   $mysqli = new mysqli("localhost", "cs143", "", "CS143");
+  $id=500019; // TODO: Get from MaxPersonID table? first check if person name exists?
 
   if (strcmp($identity, 'director') === 0) {
-    $sex=$_POST['sex'];
-    $id=500009; // TODO: Get from MaxPersonID table?
     // TODO: deal with director id = actor id, unique name?
 
     if ($dod != null) {
@@ -32,7 +31,25 @@
     } else {
       echo "$firstName $lastName was added $dob $dod!";
     }
+
+  } else if (strcmp($identity, 'actor') === 0){
+    $sex=$_POST['sex'];
+
+    if ($dod != null) {
+      $stmt = $mysqli->prepare("INSERT INTO Actor(id, last, first, sex, dob, dod) VALUES(?, ?, ?, ?, ?, ?)");
+      $stmt->bind_param("isssss", $id, $lastName, $firstName, $sex, $dob, $dod);
+    } else {
+      $stmt = $mysqli->prepare("INSERT INTO Actor(id, last, first, sex, dob, dod) VALUES(?, ?, ?, ?, ?, NULL)");
+      $stmt->bind_param("issss", $id, $lastName, $firstName, $sex, $dob);
+    }
+
+    if (!$stmt->execute()) {
+      echo "Failure";
+    } else {
+      echo "$firstName $lastName was added $dob $dod!";
+    }
+
   } else {
-    echo "$identity, $status, $firstName, ";
+    echo "Error";
   }
 
