@@ -1,7 +1,11 @@
 <?php
 
 $mysqli = new mysqli("localhost", "cs143", "", "CS143");
-add_person($mysqli);
+if ($mysqli->connect_errno) {
+  echo "Database error";
+} else {
+  add_person($mysqli);
+}
 $mysqli->close();
 
 /**

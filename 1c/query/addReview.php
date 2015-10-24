@@ -1,7 +1,11 @@
 <?php
+
 $mysqli = new mysqli("localhost", "cs143", "", "CS143");
-// TODO: error if db connection fails
-add_review($mysqli);
+if ($mysqli->connect_errno) {
+  echo "Database error";
+} else {
+  add_review($mysqli);
+}
 $mysqli->close();
 
 /**
