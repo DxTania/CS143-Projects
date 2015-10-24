@@ -98,7 +98,8 @@
       <li><a href="../">Home</a></li>
       <li><a href="addPerson.html">Add Person</a></li>
       <li class="active"><a href="addMovie.php">Add Movie</a></li>
-      <li><a href="#">Add Relation</a></li>
+      <li><a href="addActorRelation.php">Add Actor Relation</a></li>
+      <li><a href="addDirectorRelation.php">Add Director Relation</a></li>
       <li><a href="#">Browse Movies</a></li>
       <li><a href="#">Browse Actors</a></li>
     </ul>
