@@ -23,13 +23,19 @@
 
     Help us keep TheMovieDB up to date! Enter new information about director relations here.<br/><br/>
 
+    <?php
+    $mysqli = new mysqli("localhost", "cs143", "", "CS143");
+    if ($mysqli->connect_errno) {
+      echo "Database error";
+    } else {
+    ?>
+
     <form data-abide="ajax" id="director-form">
       <div class="row">
         <div class="large-12 columns">
           <label>Movie
             <select name="movie">
               <?php
-              $mysqli = new mysqli("localhost", "cs143", "", "CS143");
               $movies = $mysqli->query("SELECT id, title, year FROM Movie ORDER BY title");
 
               while($row = $movies->fetch_assoc()) {
@@ -71,6 +77,7 @@
 
       <button type="submit" class="right small">Add Relation</button>
     </form>
+    <?php } ?>
   </div>
 
   <div class="medium-3 large-3 pull-9 columns">

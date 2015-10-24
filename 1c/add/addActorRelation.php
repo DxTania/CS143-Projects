@@ -23,13 +23,19 @@
 
     Help us keep TheMovieDB up to date! Enter new information about actor relations here.<br/><br/>
 
+    <?php
+    $mysqli = new mysqli("localhost", "cs143", "", "CS143");
+    if ($mysqli->connect_errno) {
+      echo "Database error";
+    } else {
+    ?>
+
     <form data-abide="ajax" id="actor-form">
       <div class="row">
         <div class="large-12 columns">
           <label>Movie
             <select name="movie">
               <?php
-              $mysqli = new mysqli("localhost", "cs143", "", "CS143");
               $movies = $mysqli->query("SELECT id, title, year FROM Movie ORDER BY title");
 
               while($row = $movies->fetch_assoc()) {
@@ -38,7 +44,6 @@
                 $year = $row['year'];
                 echo "<option value='$id'>$title ($year)</option>";
               }
-              $mysqli->close();
               ?>
             </select>
           </label>
@@ -50,7 +55,6 @@
           <label>Actor
             <select name="actor">
               <?php
-              $mysqli = new mysqli("localhost", "cs143", "", "CS143");
               $actors = $mysqli->query("SELECT id, first, last, dob FROM Actor ORDER BY first, last");
 
               while($row = $actors->fetch_assoc()) {
@@ -78,6 +82,7 @@
 
       <button type="submit" class="right small">Add Relation</button>
     </form>
+    <?php } ?>
   </div>
 
   <div class="medium-3 large-3 pull-9 columns">

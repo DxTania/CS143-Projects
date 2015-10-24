@@ -23,6 +23,13 @@
 
     Help us keep TheMovieDB up to date! Enter new information about movies here.<br/><br/>
 
+    <?php
+    $mysqli = new mysqli("localhost", "cs143", "", "CS143");
+    if ($mysqli->connect_errno) {
+      echo "Database error";
+    } else {
+    ?>
+
     <form data-abide="ajax" id="movie-form">
       <div class="row">
         <div class="large-9 columns end">
@@ -43,13 +50,12 @@
           <label>MPAA Rating
             <select name="rating">
               <?php
-                $mysqli = new mysqli("localhost", "cs143", "", "CS143");
-                $ratings = $mysqli->query("SELECT DISTINCT rating FROM Movie ORDER BY rating");
+              $ratings = $mysqli->query("SELECT DISTINCT rating FROM Movie ORDER BY rating");
 
-                while($row = $ratings->fetch_assoc()) {
-                  $rating = $row["rating"];
-                  echo "<option value='$rating'>$rating</option>";
-                }
+              while($row = $ratings->fetch_assoc()) {
+                $rating = $row["rating"];
+                echo "<option value='$rating'>$rating</option>";
+              }
               ?>
             </select>
           </label>
@@ -80,6 +86,7 @@
       </div>
       <button type="submit" class="right small">Add Movie</button>
     </form>
+    <?php } ?>
   </div>
 
   <div class="medium-3 large-3 pull-9 columns">
