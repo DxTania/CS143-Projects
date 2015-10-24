@@ -41,6 +41,8 @@ function add_actor_relation($mysqli, $mid, $aid, $role) {
   } else {
     echo "Actor was added!";
   }
+
+  $stmt->close();
 }
 
 /**
@@ -57,4 +59,6 @@ function add_director_relation($mysqli, $mid, $did) {
   } else {
     echo "Director was added!";
   }
+
+  $stmt->close();
 }

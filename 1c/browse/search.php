@@ -21,11 +21,17 @@
   <div class="medium-9 large-9 push-3 columns">
     <h3>Search Results</h3>
 
+    <?php
+    $mysqli = new mysqli("localhost", "cs143", "", "CS143");
+    if ($mysqli->connect_errno) {
+      echo "Database error";
+    } else {
+    ?>
+
     <div class="row">
       <div class="large-6 columns">
         <h5><b>Actors</b></h5>
         <?php
-        $mysqli = new mysqli("localhost", "cs143", "", "CS143");
         $query = $mysqli->real_escape_string($_GET['query']);
         $words = explode(" ", $query);
         $conditions = '';
@@ -75,6 +81,7 @@
         ?>
       </div>
     </div>
+    <?php } ?>
   </div>
 
   <div class="medium-3 large-3 pull-9 columns">

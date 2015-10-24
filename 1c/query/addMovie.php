@@ -26,10 +26,13 @@ function add_movie($mysqli, $title, $year, $rating, $company, $genres) {
     echo "$title was added!";
   }
 
+  $stmt->close();
+
   foreach ($genres as $genre) {
     $stmt = $mysqli->prepare("INSERT INTO MovieGenre(mid, genre) VALUES($id, ?)");
     $stmt->bind_param("s", $genre);
     $stmt->execute();
+    $stmt->close();
   }
 }
 
@@ -42,5 +45,6 @@ function get_next_movie_id($mysqli) {
   $id = $result->fetch_assoc()['id'] + 1;
   $stmt = $mysqli->prepare("UPDATE MaxMovieID SET id=$id");
   $stmt->execute();
+  $stmt->close();
   return $id;
 }

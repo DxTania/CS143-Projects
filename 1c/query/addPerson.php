@@ -53,6 +53,8 @@ function insert_actor($mysqli, $id, $last, $first, $sex, $dob, $dod) {
   } else {
     echo "$first $last was added as an actor!";
   }
+
+  $stmt->close();
 }
 
 /**
@@ -74,6 +76,8 @@ function insert_director($mysqli, $id, $last, $first, $dob, $dod) {
   } else {
     echo "$first $last was added as a director!";
   }
+
+  $stmt->close();
 }
 
 /**
@@ -85,5 +89,6 @@ function get_next_person_id($mysqli) {
   $id = $result->fetch_assoc()['id'] + 1;
   $stmt = $mysqli->prepare("UPDATE MaxPersonID SET id=$id");
   $stmt->execute();
+  $stmt->close();
   return $id;
 }
