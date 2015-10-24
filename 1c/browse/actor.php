@@ -4,7 +4,7 @@
 
 <head>
   <meta charset="utf-8"/>
-  <title>TheMovieDB - Search Results</title>
+  <title>TheMovieDB - View Actor</title>
   <link rel="stylesheet" href="../css/foundation.css"/>
   <script src="../js/vendor/modernizr.js"></script>
 </head>
@@ -19,75 +19,58 @@
 
 <div class="row">
   <div class="medium-9 large-9 push-3 columns">
-    <h3>Search Results</h3>
-
     <?php
     $mysqli = new mysqli("localhost", "cs143", "", "CS143");
     if ($mysqli->connect_errno) {
       echo "Database error";
     } else {
-    ?>
-
-    <div class="row">
-      <div class="large-6 columns">
-        <h5><b>Actors</b></h5>
-        <?php
-        $query = $mysqli->real_escape_string($_GET['query']);
-        $words = explode(" ", $query);
-        $conditions = '';
-        foreach ($words as $word) {
-          $conditions = $conditions."(first LIKE '%{$word}%' OR last LIKE '%{$word}%') AND";
-        }
-        $conditions = $conditions." TRUE";
-
-        $actors = $mysqli->query("SELECT id, first, last, dob
-                                  FROM Actor
-                                  WHERE $conditions
-                                  ORDER BY first, last");
-
-        while($row = $actors->fetch_assoc()) {
-          $id = $row['id'];
-          $first = $row["first"];
-          $last = $row["last"];
-          $dob = $row["dob"];
-          echo "<a href='../browse/actor.php?id=$id'>$first $last ($dob)</a><br/>"; // TODO: make these links
-        }
-
+      $stmt = $mysqli->prepare("SELECT id, first, last, dob, dod, sex FROM Actor WHERE id = ?");
+      $stmt->bind_param("i", $_GET['id']);
+      if (!$stmt->execute()) {
+        echo "Failure";
+      } else {
+        $stmt->bind_result($aid, $first, $last, $dob, $dod, $sex);
+        $stmt->fetch();
+        $stmt->close();
         ?>
 
-      </div>
-      <div class='large-6 columns'>
-        <h5><b>Movies</b></h5>
+        <h3><?php echo "$first $last"?></h3>
+        <b>Sex</b>: <?php echo $sex?><br/>
+        <b>Date of Birth</b>: <?php echo $datetime = date( 'F d, Y', strtotime($dob)); ?><br/>
+        <b>Date of Death</b>:
+        <?php
+        if ($dod == null) {
+          echo "N/A";
+        } else {
+          echo $datetime = date( 'F d, Y', strtotime($dod));
+        }
+        ?>
+
+        <br/><br/>
+        <b>Filmography</b><br/>
 
         <?php
-
-        $conditions = '';
-        foreach ($words as $word) {
-          $conditions = $conditions."(title LIKE '%{$word}%') AND";
+        $stmt = $mysqli->prepare("SELECT mid, role, title
+                                  FROM MovieActor, Movie
+                                  WHERE aid = ? AND mid = Movie.id");
+        $stmt->bind_param("i", $aid);
+        if (!$stmt->execute()) {
+          echo "Failure";
+        } else {
+          $stmt->bind_result($mid, $role, $title);
+          while ($stmt->fetch()) {
+            echo "• \"$role\" in <a href='movie.php?id=$mid'>$title</a><br/>";
+          }
+          $stmt->close();
         }
-        $conditions = $conditions." TRUE";
-
-        $movies = $mysqli->query("SELECT id, title, year
-                                  FROM Movie
-                                  WHERE $conditions
-                                  ORDER BY title");
-
-        while($row = $movies->fetch_assoc()) {
-          $id = $row['id'];
-          $title = $row["title"];
-          $year = $row["year"];
-          echo "<a href='../browse/movie.php?id=$id'>$title ($year)</a><br/>";
-        }
-
-        $mysqli->close();
         ?>
-      </div>
-    </div>
-    <?php } ?>
+
+        <?php } } ?>
+
   </div>
 
   <div class="medium-3 large-3 pull-9 columns">
-    <form action="search.php" method="get">
+    <form action="../browse/search.php" method="get">
       <div class="row collapse">
         <div class="small-9 columns">
           <input type="text" placeholder="Search" name="query">

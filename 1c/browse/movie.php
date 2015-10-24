@@ -4,7 +4,7 @@
 
 <head>
   <meta charset="utf-8"/>
-  <title>TheMovieDB - Add Movie</title>
+  <title>TheMovieDB - View Movie</title>
   <link rel="stylesheet" href="../css/foundation.css"/>
   <script src="../js/vendor/modernizr.js"></script>
 </head>
@@ -75,16 +75,16 @@
         <br/><br/>
         <b>Cast</b><br/>
         <?php
-        $stmt = $mysqli->prepare("SELECT first, last, role
+        $stmt = $mysqli->prepare("SELECT aid, first, last, role
                                   FROM Actor, MovieActor
                                   WHERE id = aid AND mid = ?");
         $stmt->bind_param("i", $mid);
         if (!$stmt->execute()) {
           echo "Failure";
         } else {
-          $stmt->bind_result($first, $last, $role);
+          $stmt->bind_result($aid, $first, $last, $role);
           while ($stmt->fetch()) {
-            echo "* $first $last as \"$role\"<br/>";
+            echo "• <a href='actor.php?id=$aid'>$first $last</a> as \"$role\"<br/>";
           }
           $stmt->close();
         }
@@ -124,7 +124,7 @@
         } else {
           $stmt->bind_result($name, $time, $usr_rating, $comment);
           while ($stmt->fetch()) {
-            $datetime = date( 'm/d/y g:i A', strtotime($time));
+            $datetime = date( 'F d, Y g:i A', strtotime($time));
             for ($i = 0; $i < $usr_rating; $i++) {
               echo "★";
             }
