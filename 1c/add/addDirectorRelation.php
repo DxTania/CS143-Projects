@@ -114,7 +114,7 @@
   $(document).foundation();
 
   $('#director-form').on('valid.fndtn.abide', function () {
-    $.post( "addRelation.php", $( "#director-form" ).serialize(), function(data) {
+    $.post( "../query/addRelation.php", $( "#director-form" ).serialize(), function(data) {
       alert(data); // TODO: go to show movie page
     });
   });

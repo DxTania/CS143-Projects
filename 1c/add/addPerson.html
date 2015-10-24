@@ -141,7 +141,7 @@
   });
 
   $('#person-form').on('valid.fndtn.abide', function () {
-    $.post( "addPerson.php", $( "#person-form" ).serialize(), function(data) {
+    $.post( "../query/addPerson.php", $( "#person-form" ).serialize(), function(data) {
       alert(data); // TODO: go to show actor page
     });
   });

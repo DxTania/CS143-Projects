@@ -125,7 +125,7 @@
   $(document).foundation();
 
   $('#movie-form').on('valid.fndtn.abide', function () {
-    $.post( "addMoviePost.php", $( "#movie-form" ).serialize(), function(data) {
+    $.post( "../query/addMovie.php", $( "#movie-form" ).serialize(), function(data) {
       alert(data); // TODO: go to show movie page
     });
   });

@@ -121,7 +121,7 @@
   $(document).foundation();
 
   $('#actor-form').on('valid.fndtn.abide', function () {
-    $.post( "addRelation.php", $( "#actor-form" ).serialize(), function(data) {
+    $.post( "../query/addRelation.php", $( "#actor-form" ).serialize(), function(data) {
       alert(data); // TODO: go to show movie page
     });
   });
