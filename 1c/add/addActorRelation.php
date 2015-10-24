@@ -81,14 +81,16 @@
   </div>
 
   <div class="medium-3 large-3 pull-9 columns">
-    <div class="row collapse">
-      <div class="small-9 columns">
-        <input type="text" placeholder="Search">
+    <form action="../browse/search.php" method="get">
+      <div class="row collapse">
+        <div class="small-9 columns">
+          <input type="text" placeholder="Search" name="query">
+        </div>
+        <div class="small-3 columns">
+          <button type="submit" class="button postfix">Go</button>
+        </div>
       </div>
-      <div class="small-3 columns">
-        <a href="#" class="button postfix">Go</a>
-      </div>
-    </div>
+    </form>
 
     <ul class="side-nav">
       <li><a href="../">Home</a></li>
