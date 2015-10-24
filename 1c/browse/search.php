@@ -26,7 +26,8 @@
         <h5><b>Actors</b></h5>
         <?php
         $mysqli = new mysqli("localhost", "cs143", "", "CS143");
-        $words = explode(" ", $_GET['query']);
+        $query = $mysqli->real_escape_string($_GET['query']);
+        $words = explode(" ", $query);
         $conditions = '';
         foreach ($words as $word) {
           $conditions = $conditions."(first LIKE '%{$word}%' OR last LIKE '%{$word}%') AND";
