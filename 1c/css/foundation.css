@@ -2,6 +2,15 @@
   display: inline-block;
 }
 
+.rating {
+  border: 1px solid black;
+  font-size: 50px;
+  height: 60px;
+  line-height: 60px;
+  text-align: center;
+  width: 60px;
+}
+
 meta.foundation-version {
   font-family: "/5.5.3/"; }
 

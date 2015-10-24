@@ -24,18 +24,121 @@
     if ($mysqli->connect_errno) {
       echo "Database error";
     } else {
-      $stmt = $mysqli->prepare("SELECT title, year, rating, company FROM Movie WHERE id = ?");
+      $stmt = $mysqli->prepare("SELECT id, title, year, rating, company FROM Movie WHERE id = ?");
       $stmt->bind_param("i", $_GET['id']);
       if (!$stmt->execute()) {
         echo "Failure";
       } else {
-        $stmt->bind_result($title, $year, $rating, $company);
+        $stmt->bind_result($mid, $title, $year, $rating, $company);
         $stmt->fetch();
         $stmt->close();
       ?>
-    <h3><?php echo $title ?></h3>
+        <span class="right rating"><?php echo $rating?></span>
+        <h3><?php echo "$title ($year)" ?></h3>
+        <b>Producer</b>: <?php echo $company ?><br/>
+        <b>Directors</b>:
+            <?php
+            $stmt = $mysqli->prepare("SELECT first, last, dob
+                                      FROM Director, MovieDirector
+                                      WHERE mid = ? AND id = did");
+            $stmt->bind_param("i", $mid);
+            if (!$stmt->execute()) {
+              echo "Failure";
+            } else {
+              $stmt->bind_result($first, $last, $dob);
+              $result = '';
+              while ($stmt->fetch()) {
+                $result .= "$first $last ($dob), ";
+              }
+              echo substr($result, 0, strlen($result) - 2);
+              $stmt->close();
+            }
+            ?>
+        <br/>
+        <b>Genres</b>:
+        <?php
+        $stmt = $mysqli->prepare("SELECT genre FROM MovieGenre WHERE mid = ?");
+        $stmt->bind_param("i", $mid);
+        if (!$stmt->execute()) {
+          echo "Failure";
+        } else {
+          $stmt->bind_result($genre);
+          $result = '';
+          while ($stmt->fetch()) {
+            $result .= "$genre, ";
+          }
+          echo substr($result, 0, strlen($result) - 2);
+          $stmt->close();
+        }
+        ?>
 
-    <?php } } ?>
+        <br/><br/>
+        <b>Cast</b><br/>
+        <?php
+        $stmt = $mysqli->prepare("SELECT first, last, role
+                                  FROM Actor, MovieActor
+                                  WHERE id = aid AND mid = ?");
+        $stmt->bind_param("i", $mid);
+        if (!$stmt->execute()) {
+          echo "Failure";
+        } else {
+          $stmt->bind_result($first, $last, $role);
+          while ($stmt->fetch()) {
+            echo "* $first $last as \"$role\"<br/>";
+          }
+          $stmt->close();
+        }
+        ?>
+
+        <br/>
+
+        <?php
+        $stmt = $mysqli->prepare("SELECT AVG(rating) FROM Review WHERE mid = ?");
+        $stmt->bind_param("i", $mid);
+        if (!$stmt->execute()) {
+          echo "Failure";
+        } else {
+          $stmt->bind_result($avg);
+          $stmt->fetch();
+          $stmt->close();
+          ?>
+          <span class="right"><b>Avg Rating</b>:
+          <?php
+          if ($avg == null) {
+            echo "N/A";
+          } else {
+            echo "$avg / 5";
+          }
+        }
+        ?></span>
+        <b>User Reviews</b><br/><br/>
+
+        <?php
+        $stmt = $mysqli->prepare("SELECT name, time, rating, comment
+                                  FROM Review
+                                  WHERE mid = ?
+                                  ORDER BY time DESC");
+        $stmt->bind_param("i", $mid);
+        if (!$stmt->execute()) {
+          echo "Failure";
+        } else {
+          $stmt->bind_result($name, $time, $usr_rating, $comment);
+          while ($stmt->fetch()) {
+            $datetime = date( 'm/d/y g:i A', strtotime($time));
+            for ($i = 0; $i < $usr_rating; $i++) {
+              echo "★";
+            }
+            echo "<br/>$datetime by $name<br/><br/>$comment<br/><br/><hr>";
+          }
+          $stmt->close();
+        }
+        ?>
+
+        <a href="../add/addReview.php?mid=<?php echo $mid ?>" class="button small right">
+          Add Review
+        </a>
+
+      <?php } } ?>
 
   </div>
 
