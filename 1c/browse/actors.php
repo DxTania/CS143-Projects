@@ -4,7 +4,7 @@
 
 <head>
   <meta charset="utf-8"/>
-  <title>TheMovieDB - View Actor</title>
+  <title>TheMovieDB - Actors</title>
   <link rel="stylesheet" href="../css/foundation.css"/>
   <script src="../js/vendor/modernizr.js"></script>
 </head>
@@ -19,57 +19,33 @@
 
 <div class="row">
   <div class="medium-9 large-9 push-3 columns">
+    <h3>Actors</h3>
     <?php
     $mysqli = new mysqli("localhost", "cs143", "", "CS143");
     if ($mysqli->connect_errno) {
       echo "Database error";
     } else {
-      $stmt = $mysqli->prepare("SELECT id, first, last, dob, dod, sex FROM Actor WHERE id = ?");
-      $stmt->bind_param("i", $_GET['id']);
+      $stmt = $mysqli->prepare("SELECT id, first, last, dob FROM Actor ORDER BY first, last LIMIT ?, 20");
+      $page = isset($_GET['page']) ? (int) $_GET['page'] : 0;
+      $lim_start = $page * 20;
+      $stmt->bind_param("i", $lim_start);
       if (!$stmt->execute()) {
         echo "Failure";
       } else {
-        $stmt->bind_result($aid, $first, $last, $dob, $dod, $sex);
-        $stmt->fetch();
+        $stmt->bind_result($aid, $first, $last, $dob);
+        while ($stmt->fetch()) {
+          echo "• <a href='actor.php?id=$aid'>$first $last ($dob)</a><br/>";
+        }
         $stmt->close();
+      }
+    }
+    ?>
 
-        $dob = new DateTime($dob);
-        ?>
-
-        <h3><?php echo "$first $last" ?></h3>
-        <b>Sex</b>: <?php echo $sex ?><br/>
-        <b>Date of Birth</b>: <?php echo $dob->format('F d, Y'); ?><br/>
-        <b>Date of Death</b>:
-        <?php
-        if ($dod == null) {
-          echo "N/A";
-        } else {
-          $dod = new DateTime($dod);
-          echo $dod->format('F d, Y');
-        }
-        ?>
-
-        <br/><br/>
-        <b>Filmography</b><br/>
-
-        <?php
-        $stmt = $mysqli->prepare("SELECT mid, role, title
-                                  FROM MovieActor, Movie
-                                  WHERE aid = ? AND mid = Movie.id");
-        $stmt->bind_param("i", $aid);
-        if (!$stmt->execute()) {
-          echo "Failure";
-        } else {
-          $stmt->bind_result($mid, $role, $title);
-          while ($stmt->fetch()) {
-            echo "• \"$role\" in <a href='movie.php?id=$mid'>$title</a><br/>";
-          }
-          $stmt->close();
-        }
-        ?>
-
-        <?php } } ?>
-
+    <br/>
+    <?php if ($page > 0) { ?>
+      <a href="?page=<?php echo $page - 1; ?>" class="button small left">Previous</a>
+    <?php } ?>
+    <a href="?page=<?php echo $page + 1; ?>" class="button small right">Next</a>
   </div>
 
   <div class="medium-3 large-3 pull-9 columns">
@@ -91,7 +67,7 @@
       <li><a href="../add/addActorRelation.php">Add Actor Relation</a></li>
       <li><a href="../add/addDirectorRelation.php">Add Director Relation</a></li>
       <li><a href="movies.php">Browse Movies</a></li>
-      <li><a href="actors.php">Browse Actors</a></li>
+      <li class="active"><a href="actors.php">Browse Actors</a></li>
     </ul>
   </div>
 </div>

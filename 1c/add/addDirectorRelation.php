@@ -98,8 +98,8 @@
       <li><a href="addMovie.php">Add Movie</a></li>
       <li><a href="addActorRelation.php">Add Actor Relation</a></li>
       <li class="active"><a href="addDirectorRelation.php">Add Director Relation</a></li>
-      <li><a href="#">Browse Movies</a></li>
-      <li><a href="#">Browse Actors</a></li>
+      <li><a href="../browse/movies.php">Browse Movies</a></li>
+      <li><a href="../browse/actors.php">Browse Actors</a></li>
     </ul>
   </div>
 </div>

@@ -124,7 +124,8 @@
         } else {
           $stmt->bind_result($name, $time, $usr_rating, $comment);
           while ($stmt->fetch()) {
-            $datetime = date( 'F d, Y g:i A', strtotime($time));
+            $time = new DateTime($time);
+            $datetime = $time->format('F d, Y g:i A');
             for ($i = 0; $i < $usr_rating; $i++) {
               echo "★";
             }
@@ -160,8 +161,8 @@
       <li><a href="../add/addMovie.php">Add Movie</a></li>
       <li><a href="../add/addActorRelation.php">Add Actor Relation</a></li>
       <li><a href="../add/addDirectorRelation.php">Add Director Relation</a></li>
-      <li><a href="#">Browse Movies</a></li>
-      <li><a href="#">Browse Actors</a></li>
+      <li><a href="movies.php">Browse Movies</a></li>
+      <li><a href="actors.php">Browse Actors</a></li>
     </ul>
   </div>
 </div>
