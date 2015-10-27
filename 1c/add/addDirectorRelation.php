@@ -19,7 +19,7 @@
 
 <div class="row">
   <div class="medium-9 large-9 push-3 columns">
-    <h3>Add Relation</h3>
+    <h3>Add Director Relation</h3>
 
     Help us keep TheMovieDB up to date! Enter new information about director relations here.<br/><br/>
 
