@@ -22,6 +22,7 @@
     <h3>Add Person <small>(Actor / Director)</small></h3>
 
     Help us keep TheMovieDB up to date! Enter new information about people here.<br/><br/>
+
     <em>* All fields are required.</em><br/><br/>
 
     <form data-abide="ajax" id="person-form">
@@ -114,43 +115,54 @@
 <script>
   $(document).foundation();
 
-  $('#dead').click(function() {
-    if ($('#dead').is(':checked')) {
-      $('#death-div').removeClass('invisible');
-      $('#deathdate').attr('required');
-    }
-  });
+  isAlive();
+  isDead();
+  isActor();
+  isDirector();
 
-  $('#alive').click(function() {
-    if ($('#alive').is(':checked')) {
-      $('#death-div').addClass('invisible');
-      $('#deathdate').removeAttr('required');
-    }
-  });
-
-  $('#actor').click(function() {
-    if ($('#actor').is(':checked')) {
-      $('#sex-div').removeClass('invisible');
-      $('input[name="sex"]').attr('required');
-    }
-  });
-
-  $('#director').click(function() {
-    if ($('#director').is(':checked')) {
-      $('#sex-div').addClass('invisible');
-      $('input[name="sex"]').removeAttr('required');
-    }
-  });
+  $('#dead').click(isDead);
+  $('#alive').click(isAlive);
+  $('#actor').click(isActor);
+  $('#director').click(isDirector);
 
   $('#person-form').on('valid.fndtn.abide', function () {
-    $.post( "../query/addPerson.php", $( "#person-form" ).serialize(), function(data) {
-      alert(data); // TODO: go to show actor page
+    $.post('../query/addPerson.php', $('#person-form').serialize(), function(data) {
+      alert(data);
+      window.location.href = 'addPerson.html';
     });
   });
 
   $('input, textarea, select').off('.abide').on('blur.fndtn.abide change.fndtn.abide', function (e) {
     // do nothing
   });
+
+  function isAlive() {
+    if ($('#alive').is(':checked')) {
+      $('#death-div').addClass('invisible');
+      $('#deathdate').removeAttr('required');
+    }
+  }
+
+  function isDead() {
+    if ($('#dead').is(':checked')) {
+      $('#death-div').removeClass('invisible');
+      $('#deathdate').attr('required');
+    }
+  }
+
+  function isActor() {
+    if ($('#actor').is(':checked')) {
+      $('#sex-div').removeClass('invisible');
+      $('input[name="sex"]').attr('required');
+    }
+  }
+
+  function isDirector() {
+    if ($('#director').is(':checked')) {
+      $('#sex-div').addClass('invisible');
+      $('input[name="sex"]').removeAttr('required');
+    }
+  }
 </script>
 </body>
 </html>

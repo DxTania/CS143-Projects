@@ -25,7 +25,7 @@ function add_person($mysqli) {
     $dod = date("Y-m-d", strtotime($_POST['dod']));
   }
 
-  $id = get_next_person_id($mysqli); // TODO: first check if person name exists?
+  $id = get_next_person_id($mysqli);
 
   if (strcmp($identity, 'director') === 0) {
     insert_director($mysqli, $id, $last_name, $first_name, $dob, $dod);
@@ -66,7 +66,6 @@ function insert_actor($mysqli, $id, $last, $first, $sex, $dob, $dod) {
  * @param $mysqli mysqli object
  */
 function insert_director($mysqli, $id, $last, $first, $dob, $dod) {
-  // TODO: deal with director id = actor id, unique name?
   if ($dod != null) {
     $stmt = $mysqli->prepare("INSERT INTO Director(id, last, first, dob, dod) VALUES($id, ?, ?, ?, ?)");
     $stmt->bind_param("ssss", $last, $first, $dob, $dod);

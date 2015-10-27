@@ -50,7 +50,7 @@
           $first = $row["first"];
           $last = $row["last"];
           $dob = $row["dob"];
-          echo "<a href='../browse/actor.php?id=$id'>$first $last ($dob)</a><br/>"; // TODO: make these links
+          echo "<a href='../browse/actor.php?id=$id'>$first $last ($dob)</a><br/>";
         }
 
         ?>

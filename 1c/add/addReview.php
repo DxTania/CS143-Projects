@@ -114,8 +114,9 @@
   $(document).foundation();
 
   $('#review-form').on('valid.fndtn.abide', function () {
-    $.post( "../query/addReview.php", $( "#review-form" ).serialize(), function(data) {
-      alert(data); // TODO: go to show movie page
+    $.post('../query/addReview.php', $('#review-form').serialize(), function(data) {
+      alert(data);
+      window.location.href = '../index.html';
     });
   });
 

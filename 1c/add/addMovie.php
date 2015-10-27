@@ -132,8 +132,9 @@
   $(document).foundation();
 
   $('#movie-form').on('valid.fndtn.abide', function () {
-    $.post( "../query/addMovie.php", $( "#movie-form" ).serialize(), function(data) {
-      alert(data); // TODO: go to show movie page
+    $.post('../query/addMovie.php', $('#movie-form').serialize(), function(data) {
+      alert(data);
+      window.location.href = 'addMovie.php';
     });
   });
 

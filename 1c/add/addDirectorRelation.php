@@ -123,8 +123,9 @@
   $(document).foundation();
 
   $('#director-form').on('valid.fndtn.abide', function () {
-    $.post( "../query/addRelation.php", $( "#director-form" ).serialize(), function(data) {
-      alert(data); // TODO: go to show movie page
+    $.post('../query/addRelation.php', $('#director-form').serialize(), function(data) {
+      alert(data);
+      window.location.href = 'addDirectorRelation.php';
     });
   });
 
