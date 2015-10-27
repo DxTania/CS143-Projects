@@ -125,6 +125,7 @@
         if (!$stmt->execute()) {
           echo "Failure";
         } else {
+          $stmt->store_result();
           $stmt->bind_result($name, $time, $usr_rating, $comment);
           while ($stmt->fetch()) {
             $time = new DateTime($time);
@@ -133,6 +134,9 @@
               echo "★";
             }
             echo "<br/>$datetime by $name<br/><br/>$comment<br/><br/><hr>";
+          }
+          if ($stmt->num_rows == 0) {
+            echo "No reviews yet!<br/><br/>";
           }
           $stmt->close();
         }

@@ -53,6 +53,10 @@
           echo "<a href='../browse/actor.php?id=$id'>$first $last ($dob)</a><br/>";
         }
 
+        if ($actors->num_rows == 0) {
+          echo "No results.";
+        }
+
         ?>
 
       </div>
@@ -77,6 +81,10 @@
           $title = $row["title"];
           $year = $row["year"];
           echo "<a href='../browse/movie.php?id=$id'>$title ($year)</a><br/>";
+        }
+
+        if ($movies->num_rows == 0) {
+          echo "No results.";
         }
 
         $mysqli->close();

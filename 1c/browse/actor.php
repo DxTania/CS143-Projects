@@ -61,9 +61,13 @@
         if (!$stmt->execute()) {
           echo "Failure";
         } else {
+          $stmt->store_result();
           $stmt->bind_result($mid, $role, $title);
           while ($stmt->fetch()) {
             echo "• \"$role\" in <a href='movie.php?id=$mid'>$title</a><br/>";
+          }
+          if ($stmt->num_rows == 0) {
+            echo "No results.";
           }
           $stmt->close();
         }
