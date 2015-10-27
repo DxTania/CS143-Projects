@@ -17,12 +17,12 @@ function add_person($mysqli) {
   $last_name = $_POST['lastName'];
   $identity = $_POST['identity'];
   $status = $_POST['status'];
-  $dob = date("Y-m-d", strtotime($_POST['dob']));
+  $dob = get_date($_POST['dob']);
   $dod = null;
   $sex = null;
 
   if (strcmp($status, 'dead') === 0) {
-    $dod = date("Y-m-d", strtotime($_POST['dod']));
+    $dod = get_date($_POST['dod']);
   }
 
   $id = get_next_person_id($mysqli);
@@ -94,4 +94,13 @@ function get_next_person_id($mysqli) {
   $stmt->execute();
   $stmt->close();
   return $id;
+}
+
+/**
+ * @param $date string mm/dd/YYYY format
+ * @return datetime YYYY-mm-dd format
+ */
+function get_date($date) {
+  $datetime = DateTime::createFromFormat('m/d/Y', $date);
+  return $datetime->format('Y-m-d');
 }
