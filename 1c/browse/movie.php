@@ -24,7 +24,9 @@
     if ($mysqli->connect_errno) {
       echo "Database error";
     } else {
-      $stmt = $mysqli->prepare("SELECT id, title, year, rating, company FROM Movie WHERE id = ?");
+      $stmt = $mysqli->prepare("SELECT id, title, year, rating, company
+                                FROM Movie
+                                WHERE id = ?");
       $stmt->bind_param("i", $_GET['id']);
       if (!$stmt->execute()) {
         echo "Failure";
@@ -77,7 +79,8 @@
         <?php
         $stmt = $mysqli->prepare("SELECT aid, first, last, role
                                   FROM Actor, MovieActor
-                                  WHERE id = aid AND mid = ?");
+                                  WHERE id = aid AND mid = ?
+                                  ORDER BY first, last");
         $stmt->bind_param("i", $mid);
         if (!$stmt->execute()) {
           echo "Failure";

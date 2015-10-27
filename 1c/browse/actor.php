@@ -55,7 +55,8 @@
         <?php
         $stmt = $mysqli->prepare("SELECT mid, role, title
                                   FROM MovieActor, Movie
-                                  WHERE aid = ? AND mid = Movie.id");
+                                  WHERE aid = ? AND mid = Movie.id
+                                  ORDER BY title");
         $stmt->bind_param("i", $aid);
         if (!$stmt->execute()) {
           echo "Failure";
