@@ -40,17 +40,18 @@
         <b>Producer</b>: <?php echo $company ?><br/>
         <b>Directors</b>:
             <?php
-            $stmt = $mysqli->prepare("SELECT first, last, dob
+            $stmt = $mysqli->prepare("SELECT first, last, dob, dod
                                       FROM Director, MovieDirector
                                       WHERE mid = ? AND id = did");
             $stmt->bind_param("i", $mid);
             if (!$stmt->execute()) {
               echo "Failure";
             } else {
-              $stmt->bind_result($first, $last, $dob);
+              $stmt->bind_result($first, $last, $dob, $dod);
               $result = '';
               while ($stmt->fetch()) {
-                $result .= "$first $last ($dob), ";
+                $death_str = $dod == null ? "" : " until $dod";
+                $result .= "$first $last ($dob$death_str), ";
               }
               echo substr($result, 0, strlen($result) - 2);
               $stmt->close();
