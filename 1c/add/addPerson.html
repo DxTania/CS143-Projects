@@ -21,6 +21,8 @@
   <div class="medium-9 large-9 push-3 columns">
     <h3>Add Person <small>(Actor / Director)</small></h3>
 
+    <div id="result"></div>
+
     Help us keep TheMovieDB up to date! Enter new information about people here.<br/><br/>
 
     <em>* All fields are required.</em><br/><br/>
@@ -112,6 +114,7 @@
 
 <script src="../js/vendor/jquery.js"></script>
 <script src="../js/foundation.min.js"></script>
+<script src="../js/result.js"></script>
 <script>
   $(document).foundation();
 
@@ -127,8 +130,10 @@
 
   $('#person-form').on('valid.fndtn.abide', function () {
     $.post('../query/addPerson.php', $('#person-form').serialize(), function(data) {
-      alert(data);
-      window.location.href = 'addPerson.html';
+      processResult(data);
+      $('#person-form')[0].reset();
+      resetRadios();
+      $('html,body').scrollTop(0);
     });
   });
 
@@ -162,6 +167,17 @@
       $('#sex-div').addClass('invisible');
       $('input[name="sex"]').removeAttr('required');
     }
+  }
+
+  function resetRadios() {
+    $('#dead').attr('value', 'dead');
+    $('#alive').attr('value', 'alive');
+    $('#female').attr('value', 'Female');
+    $('#male').attr('value', 'Male');
+    $('#director').attr('value', 'director');
+    $('#actor').attr('value', 'actor');
+
+    $('#death-div, #sex-div').removeClass('invisible');
   }
 </script>
 </body>

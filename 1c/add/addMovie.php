@@ -21,6 +21,8 @@
   <div class="medium-9 large-9 push-3 columns">
     <h3>Add Movie</h3>
 
+    <div id="result"></div>
+
     Help us keep TheMovieDB up to date! Enter new information about movies here.<br/><br/>
 
     <?php
@@ -128,13 +130,15 @@
 
 <script src="../js/vendor/jquery.js"></script>
 <script src="../js/foundation.min.js"></script>
+<script src="../js/result.js"></script>
 <script>
   $(document).foundation();
 
   $('#movie-form').on('valid.fndtn.abide', function () {
     $.post('../query/addMovie.php', $('#movie-form').serialize(), function(data) {
-      alert(data);
-      window.location.href = 'addMovie.php';
+      processResult(data);
+      $('#movie-form')[0].reset();
+      $('html,body').scrollTop(0);
     });
   });
 

@@ -110,12 +110,13 @@
 
 <script src="../js/vendor/jquery.js"></script>
 <script src="../js/foundation.min.js"></script>
+<script src="../js/result.js"></script>
 <script>
   $(document).foundation();
 
   $('#review-form').on('valid.fndtn.abide', function () {
     $.post('../query/addReview.php', $('#review-form').serialize(), function(data) {
-      alert(data);
+      processResult(data);
       window.location.href = '../index.html';
     });
   });

@@ -1,8 +1,9 @@
 <?php
+include "../common/json.php";
 
 $mysqli = new mysqli("localhost", "cs143", "", "CS143");
 if ($mysqli->connect_errno) {
-  echo "Database error";
+  echo database_error();
 } else {
   add_review($mysqli);
 }
@@ -23,9 +24,9 @@ function add_review($mysqli) {
   $stmt->bind_param("siis", $name, $mid, $rating, $comment);
 
   if (!$stmt->execute()) {
-    echo "Failure";
+    echo database_error();
   } else {
-    echo "Review was added!";
+    echo create_result(1, "Review was added!");
   }
 
   $stmt->close();

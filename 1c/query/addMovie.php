@@ -1,8 +1,9 @@
 <?php
+include "../common/json.php";
 
 $mysqli = new mysqli("localhost", "cs143", "", "CS143");
 if ($mysqli->connect_errno) {
-  echo "Database error";
+  echo database_error();
 } else {
   add_movie($mysqli);
 }
@@ -25,9 +26,9 @@ function add_movie($mysqli) {
   $stmt->bind_param("siss", $title, $year, $rating, $company);
 
   if (!$stmt->execute()) {
-    echo "Failure";
+    echo database_error();
   } else {
-    echo "$title was added!";
+    echo create_result(1, "$title was added!");
   }
 
   $stmt->close();

@@ -1,8 +1,9 @@
 <?php
+include "../common/json.php";
 
 $mysqli = new mysqli("localhost", "cs143", "", "CS143");
 if ($mysqli->connect_errno) {
-  echo "Database error";
+  echo database_error();
 } else {
   add_person($mysqli);
 }
@@ -34,7 +35,7 @@ function add_person($mysqli) {
     insert_actor($mysqli, $id, $last_name, $first_name, $_POST['sex'], $dob, $dod);
 
   } else {
-    echo "Error";
+    echo create_result(-1, "Invalid identity");
   }
 
 }
@@ -53,9 +54,9 @@ function insert_actor($mysqli, $id, $last, $first, $sex, $dob, $dod) {
   }
 
   if (!$stmt->execute()) {
-    echo "Failure";
+    echo database_error();
   } else {
-    echo "$first $last was added as an actor!";
+    echo create_result(1, "$first $last was added as an actor!");
   }
 
   $stmt->close();
@@ -75,9 +76,9 @@ function insert_director($mysqli, $id, $last, $first, $dob, $dod) {
   }
 
   if (!$stmt->execute()) {
-    echo "Failure";
+    echo database_error();
   } else {
-    echo "$first $last was added as a director!";
+    echo create_result(1, "$first $last was added as a director!");
   }
 
   $stmt->close();

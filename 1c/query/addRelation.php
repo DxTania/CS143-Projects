@@ -1,8 +1,9 @@
 <?php
+include "../common/json.php";
 
 $mysqli = new mysqli("localhost", "cs143", "", "CS143");
 if ($mysqli->connect_errno) {
-  echo "Database error";
+  echo database_error();
 } else {
   add_relation($mysqli);
 }
@@ -27,7 +28,7 @@ function add_relation($mysqli) {
     add_director_relation($mysqli, $mid, $did);
 
   } else {
-    echo 'Error';
+    echo create_result(-1, "Invalid type");
   }
 }
 
@@ -41,9 +42,9 @@ function add_actor_relation($mysqli, $mid, $aid, $role) {
   $stmt->bind_param("iis", $mid, $aid, $role);
 
   if (!$stmt->execute()) {
-    echo "Failure";
+    echo database_error();
   } else {
-    echo "Actor was added!";
+    echo create_result(1, "Actor was added!");
   }
 
   $stmt->close();
@@ -59,9 +60,9 @@ function add_director_relation($mysqli, $mid, $did) {
   $stmt->bind_param("ii", $mid, $did);
 
   if (!$stmt->execute()) {
-    echo "Failure";
+    echo database_error();
   } else {
-    echo "Director was added!";
+    echo create_result(1, "Director was added!");
   }
 
   $stmt->close();
