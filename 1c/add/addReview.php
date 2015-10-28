@@ -34,6 +34,8 @@
     ?>
         <h3>Review for <?php echo $title ?></h3>
 
+        <div id="result"></div>
+
         <form data-abide="ajax" id="review-form">
           <div class="row">
             <div class="large-12 columns">
@@ -117,7 +119,8 @@
   $('#review-form').on('valid.fndtn.abide', function () {
     $.post('../query/addReview.php', $('#review-form').serialize(), function(data) {
       processResult(data);
-      window.location.href = '../index.html';
+      $('#review-form')[0].reset();
+      $('html,body').scrollTop(0);
     });
   });
 
