@@ -91,9 +91,13 @@
           if (!$stmt->execute()) {
             echo "Failure";
           } else {
+            $stmt->store_result();
             $stmt->bind_result($aid, $first, $last, $role);
             while ($stmt->fetch()) {
               echo "• <a href='actor.php?id=$aid'>$first $last</a> as \"$role\"<br/>";
+            }
+            if ($stmt->num_rows == 0) {
+              echo "No results.<br/>";
             }
             $stmt->close();
           }
