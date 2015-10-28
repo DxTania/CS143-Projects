@@ -29,51 +29,56 @@
       if (!$stmt->execute()) {
         echo "Failure";
       } else {
+        $stmt->store_result();
         $stmt->bind_result($aid, $first, $last, $dob, $dod, $sex);
         $stmt->fetch();
-        $stmt->close();
-
-        $dob = new DateTime($dob);
-        ?>
-
-        <h3><?php echo "$first $last" ?></h3>
-        <b>Sex</b>: <?php echo $sex ?><br/>
-        <b>Date of Birth</b>: <?php echo $dob->format('F d, Y'); ?><br/>
-        <b>Date of Death</b>:
-        <?php
-        if ($dod == null) {
-          echo "N/A";
-        } else {
-          $dod = new DateTime($dod);
-          echo $dod->format('F d, Y');
-        }
-        ?>
-
-        <br/><br/>
-        <b>Filmography</b><br/>
-
-        <?php
-        $stmt = $mysqli->prepare("SELECT mid, role, title
-                                  FROM MovieActor, Movie
-                                  WHERE aid = ? AND mid = Movie.id
-                                  ORDER BY title");
-        $stmt->bind_param("i", $aid);
-        if (!$stmt->execute()) {
-          echo "Failure";
-        } else {
-          $stmt->store_result();
-          $stmt->bind_result($mid, $role, $title);
-          while ($stmt->fetch()) {
-            echo "• \"$role\" in <a href='movie.php?id=$mid'>$title</a><br/>";
-          }
-          if ($stmt->num_rows == 0) {
-            echo "No results.";
-          }
+        if ($stmt->num_rows == 0) {
+          echo "Actor does not exit.";
           $stmt->close();
-        }
+        } else {
+          $stmt->close();
+
+          $dob = new DateTime($dob);
         ?>
 
-        <?php } } ?>
+          <h3><?php echo "$first $last" ?></h3>
+          <b>Sex</b>: <?php echo $sex ?><br/>
+          <b>Date of Birth</b>: <?php echo $dob->format('F d, Y'); ?><br/>
+          <b>Date of Death</b>:
+          <?php
+          if ($dod == null) {
+            echo "N/A";
+          } else {
+            $dod = new DateTime($dod);
+            echo $dod->format('F d, Y');
+          }
+          ?>
+
+          <br/><br/>
+          <b>Filmography</b><br/>
+
+          <?php
+          $stmt = $mysqli->prepare("SELECT mid, role, title
+                                    FROM MovieActor, Movie
+                                    WHERE aid = ? AND mid = Movie.id
+                                    ORDER BY title");
+          $stmt->bind_param("i", $aid);
+          if (!$stmt->execute()) {
+            echo "Failure";
+          } else {
+            $stmt->store_result();
+            $stmt->bind_result($mid, $role, $title);
+            while ($stmt->fetch()) {
+              echo "• \"$role\" in <a href='movie.php?id=$mid'>$title</a><br/>";
+            }
+            if ($stmt->num_rows == 0) {
+              echo "No results.";
+            }
+            $stmt->close();
+          }
+          ?>
+
+        <?php } } } ?>
 
   </div>
 

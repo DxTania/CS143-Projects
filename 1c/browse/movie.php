@@ -31,123 +31,128 @@
       if (!$stmt->execute()) {
         echo "Failure";
       } else {
+        $stmt->store_result();
         $stmt->bind_result($mid, $title, $year, $rating, $company);
         $stmt->fetch();
-        $stmt->close();
+        if ($stmt->num_rows == 0) {
+          echo "Movie does not exist.";
+          $stmt->close();
+        } else {
+          $stmt->close();
       ?>
-        <span class="right rating"><?php echo $rating?></span>
-        <h3><?php echo "$title ($year)" ?></h3>
-        <b>Producer</b>: <?php echo $company ?><br/>
-        <b>Directors</b>:
-            <?php
-            $stmt = $mysqli->prepare("SELECT first, last, dob, dod
-                                      FROM Director, MovieDirector
-                                      WHERE mid = ? AND id = did");
-            $stmt->bind_param("i", $mid);
-            if (!$stmt->execute()) {
-              echo "Failure";
-            } else {
-              $stmt->bind_result($first, $last, $dob, $dod);
-              $result = '';
-              while ($stmt->fetch()) {
-                $death_str = $dod == null ? "" : " until $dod";
-                $result .= "$first $last ($dob$death_str), ";
+          <span class="right rating"><?php echo $rating?></span>
+          <h3><?php echo "$title ($year)" ?></h3>
+          <b>Producer</b>: <?php echo $company ?><br/>
+          <b>Directors</b>:
+              <?php
+              $stmt = $mysqli->prepare("SELECT first, last, dob, dod
+                                        FROM Director, MovieDirector
+                                        WHERE mid = ? AND id = did");
+              $stmt->bind_param("i", $mid);
+              if (!$stmt->execute()) {
+                echo "Failure";
+              } else {
+                $stmt->bind_result($first, $last, $dob, $dod);
+                $result = '';
+                while ($stmt->fetch()) {
+                  $death_str = $dod == null ? "" : " until $dod";
+                  $result .= "$first $last ($dob$death_str), ";
+                }
+                echo substr($result, 0, strlen($result) - 2);
+                $stmt->close();
               }
-              echo substr($result, 0, strlen($result) - 2);
-              $stmt->close();
-            }
-            ?>
-        <br/>
-        <b>Genres</b>:
-        <?php
-        $stmt = $mysqli->prepare("SELECT genre FROM MovieGenre WHERE mid = ?");
-        $stmt->bind_param("i", $mid);
-        if (!$stmt->execute()) {
-          echo "Failure";
-        } else {
-          $stmt->bind_result($genre);
-          $result = '';
-          while ($stmt->fetch()) {
-            $result .= "$genre, ";
-          }
-          echo substr($result, 0, strlen($result) - 2);
-          $stmt->close();
-        }
-        ?>
-
-        <br/><br/>
-        <b>Cast</b><br/>
-        <?php
-        $stmt = $mysqli->prepare("SELECT aid, first, last, role
-                                  FROM Actor, MovieActor
-                                  WHERE id = aid AND mid = ?
-                                  ORDER BY first, last");
-        $stmt->bind_param("i", $mid);
-        if (!$stmt->execute()) {
-          echo "Failure";
-        } else {
-          $stmt->bind_result($aid, $first, $last, $role);
-          while ($stmt->fetch()) {
-            echo "• <a href='actor.php?id=$aid'>$first $last</a> as \"$role\"<br/>";
-          }
-          $stmt->close();
-        }
-        ?>
-
-        <br/>
-
-        <?php
-        $stmt = $mysqli->prepare("SELECT AVG(rating) FROM Review WHERE mid = ?");
-        $stmt->bind_param("i", $mid);
-        if (!$stmt->execute()) {
-          echo "Failure";
-        } else {
-          $stmt->bind_result($avg);
-          $stmt->fetch();
-          $stmt->close();
-          ?>
-          <span class="right"><b>Avg Rating</b>:
+              ?>
+          <br/>
+          <b>Genres</b>:
           <?php
-          if ($avg == null) {
-            echo "N/A";
+          $stmt = $mysqli->prepare("SELECT genre FROM MovieGenre WHERE mid = ?");
+          $stmt->bind_param("i", $mid);
+          if (!$stmt->execute()) {
+            echo "Failure";
           } else {
-            echo "$avg / 5";
-          }
-        }
-        ?></span>
-        <b>User Reviews</b><br/><br/>
-
-        <?php
-        $stmt = $mysqli->prepare("SELECT name, time, rating, comment
-                                  FROM Review
-                                  WHERE mid = ?
-                                  ORDER BY time DESC");
-        $stmt->bind_param("i", $mid);
-        if (!$stmt->execute()) {
-          echo "Failure";
-        } else {
-          $stmt->store_result();
-          $stmt->bind_result($name, $time, $usr_rating, $comment);
-          while ($stmt->fetch()) {
-            $time = new DateTime($time);
-            $datetime = $time->format('F d, Y g:i A');
-            for ($i = 0; $i < $usr_rating; $i++) {
-              echo "★";
+            $stmt->bind_result($genre);
+            $result = '';
+            while ($stmt->fetch()) {
+              $result .= "$genre, ";
             }
-            echo "<br/>$datetime by $name<br/><br/>$comment<br/><br/><hr>";
+            echo substr($result, 0, strlen($result) - 2);
+            $stmt->close();
           }
-          if ($stmt->num_rows == 0) {
-            echo "No reviews yet!<br/><br/>";
+          ?>
+
+          <br/><br/>
+          <b>Cast</b><br/>
+          <?php
+          $stmt = $mysqli->prepare("SELECT aid, first, last, role
+                                    FROM Actor, MovieActor
+                                    WHERE id = aid AND mid = ?
+                                    ORDER BY first, last");
+          $stmt->bind_param("i", $mid);
+          if (!$stmt->execute()) {
+            echo "Failure";
+          } else {
+            $stmt->bind_result($aid, $first, $last, $role);
+            while ($stmt->fetch()) {
+              echo "• <a href='actor.php?id=$aid'>$first $last</a> as \"$role\"<br/>";
+            }
+            $stmt->close();
           }
-          $stmt->close();
-        }
-        ?>
+          ?>
 
-        <a href="../add/addReview.php?mid=<?php echo $mid ?>" class="button small right">
-          Add Review
-        </a>
+          <br/>
 
-      <?php } } ?>
+          <?php
+          $stmt = $mysqli->prepare("SELECT AVG(rating) FROM Review WHERE mid = ?");
+          $stmt->bind_param("i", $mid);
+          if (!$stmt->execute()) {
+            echo "Failure";
+          } else {
+            $stmt->bind_result($avg);
+            $stmt->fetch();
+            $stmt->close();
+            ?>
+            <span class="right"><b>Avg Rating</b>:
+            <?php
+            if ($avg == null) {
+              echo "N/A";
+            } else {
+              echo "$avg / 5";
+            }
+          }
+          ?></span>
+          <b>User Reviews</b><br/><br/>
+
+          <?php
+          $stmt = $mysqli->prepare("SELECT name, time, rating, comment
+                                    FROM Review
+                                    WHERE mid = ?
+                                    ORDER BY time DESC");
+          $stmt->bind_param("i", $mid);
+          if (!$stmt->execute()) {
+            echo "Failure";
+          } else {
+            $stmt->store_result();
+            $stmt->bind_result($name, $time, $usr_rating, $comment);
+            while ($stmt->fetch()) {
+              $time = new DateTime($time);
+              $datetime = $time->format('F d, Y g:i A');
+              for ($i = 0; $i < $usr_rating; $i++) {
+                echo "★";
+              }
+              echo "<br/>$datetime by $name<br/><br/>$comment<br/><br/><hr>";
+            }
+            if ($stmt->num_rows == 0) {
+              echo "No reviews yet!<br/><br/>";
+            }
+            $stmt->close();
+          }
+          ?>
+
+          <a href="../add/addReview.php?mid=<?php echo $mid ?>" class="button small right">
+            Add Review
+          </a>
+
+      <?php } } } ?>
 
   </div>
 
