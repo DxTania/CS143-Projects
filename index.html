@@ -1,0 +1,69 @@
+<!doctype html>
+<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
+<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
+
+<head>
+  <meta charset="utf-8"/>
+  <title>TheMovieDB</title>
+  <link rel="stylesheet" href="1c/www/css/foundation.css"/>
+  <script src="1c/www/js/vendor/modernizr.js"></script>
+</head>
+
+<body>
+
+<div class="row">
+  <div class="large-12 columns">
+    <h1><img src="1c/www/img/logo.png"/></h1>
+  </div>
+</div>
+
+<div class="row">
+  <div class="medium-9 large-9 push-3 columns">
+    <h3>Welcome to TheMovieDB</h3>
+    Use the side navigation to navigate this site.
+  </div>
+
+  <div class="medium-3 large-3 pull-9 columns">
+    <form action="1c/www/browse/search.php" method="get">
+      <div class="row collapse">
+          <div class="small-9 columns">
+            <input type="text" placeholder="Search" name="query">
+          </div>
+          <div class="small-3 columns">
+            <button type="submit" class="button postfix">Go</button>
+          </div>
+      </div>
+    </form>
+
+    <ul class="side-nav">
+      <li class="active"><a href="1c/www">Home</a></li>
+      <li><a href="1c/www/add/addPerson.html">Add Person</a></li>
+      <li><a href="1c/www/add/addMovie.html">Add Movie</a></li>
+      <li><a href="1c/www/add/addActorRelation.php">Add Actor Relation</a></li>
+      <li><a href="1c/www/add/addDirectorRelation.php">Add Director Relation</a></li>
+      <li><a href="1c/www/browse/movies.php">Browse Movies</a></li>
+      <li><a href="1c/www/browse/actors.php">Browse Actors</a></li>
+    </ul>
+  </div>
+</div>
+
+<footer class="row">
+  <div class="large-12 columns">
+    <hr/>
+    <div class="row">
+      <div class="large-6 columns">
+        <p>&copy; Copyright no one at all. Go to town.</p>
+      </div>
+      <div class="large-6 columns">
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="1c/www/js/vendor/jquery.js"></script>
+<script src="1c/www/js/foundation.min.js"></script>
+<script>
+  $(document).foundation();
+</script>
+</body>
+</html>
