@@ -6,8 +6,8 @@ if ($mysqli->connect_errno) {
   echo database_error();
 } else {
   add_review($mysqli);
+  $mysqli->close();
 }
-$mysqli->close();
 
 /**
  * Add review to Review table
@@ -20,14 +20,17 @@ function add_review($mysqli) {
   $rating = $_POST['rating'];
   $comment = $_POST['comment'];
 
-  $stmt = $mysqli->prepare("INSERT INTO Review(name, time, mid, rating, comment) VALUES(?, NOW(), ?, ?, ?)");
-  $stmt->bind_param("siis", $name, $mid, $rating, $comment);
+  if ($stmt = $mysqli->prepare("INSERT INTO Review(name, time, mid, rating, comment) VALUES(?, NOW(), ?, ?, ?)")) {
+    $stmt->bind_param("siis", $name, $mid, $rating, $comment);
 
-  if (!$stmt->execute()) {
-    echo database_error();
+    if (!$stmt->execute()) {
+      echo database_error();
+    } else {
+      echo create_result(1, "Review was added!");
+    }
+
+    $stmt->close();
   } else {
-    echo create_result(1, "Review was added!");
+    echo database_error();
   }
-
-  $stmt->close();
 }

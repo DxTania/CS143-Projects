@@ -6,8 +6,8 @@ if ($mysqli->connect_errno) {
   echo database_error();
 } else {
   add_person($mysqli);
+  $mysqli->close();
 }
-$mysqli->close();
 
 /**
  * Add actor or director based on POST parameters
@@ -27,6 +27,10 @@ function add_person($mysqli) {
   }
 
   $id = get_next_person_id($mysqli);
+  if ($id < 0) {
+    echo database_error();
+    return;
+  }
 
   if (strcmp($identity, 'director') === 0) {
     insert_director($mysqli, $id, $last_name, $first_name, $dob, $dod);
@@ -46,11 +50,19 @@ function add_person($mysqli) {
  */
 function insert_actor($mysqli, $id, $last, $first, $sex, $dob, $dod) {
   if ($dod != null) {
-    $stmt = $mysqli->prepare("INSERT INTO Actor(id, last, first, sex, dob, dod) VALUES($id, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssss", $last, $first, $sex, $dob, $dod);
+    if ($stmt = $mysqli->prepare("INSERT INTO Actor(id, last, first, sex, dob, dod) VALUES($id, ?, ?, ?, ?, ?)")) {
+      $stmt->bind_param("sssss", $last, $first, $sex, $dob, $dod);
+    } else {
+      echo database_error();
+      return;
+    }
   } else {
-    $stmt = $mysqli->prepare("INSERT INTO Actor(id, last, first, sex, dob, dod) VALUES($id, ?, ?, ?, ?, NULL)");
-    $stmt->bind_param("ssss", $last, $first, $sex, $dob);
+    if ($stmt = $mysqli->prepare("INSERT INTO Actor(id, last, first, sex, dob, dod) VALUES($id, ?, ?, ?, ?, NULL)")) {
+      $stmt->bind_param("ssss", $last, $first, $sex, $dob);
+    } else {
+      echo database_error();
+      return;
+    }
   }
 
   if (!$stmt->execute()) {
@@ -68,11 +80,19 @@ function insert_actor($mysqli, $id, $last, $first, $sex, $dob, $dod) {
  */
 function insert_director($mysqli, $id, $last, $first, $dob, $dod) {
   if ($dod != null) {
-    $stmt = $mysqli->prepare("INSERT INTO Director(id, last, first, dob, dod) VALUES($id, ?, ?, ?, ?)");
-    $stmt->bind_param("ssss", $last, $first, $dob, $dod);
+    if ($stmt = $mysqli->prepare("INSERT INTO Director(id, last, first, dob, dod) VALUES($id, ?, ?, ?, ?)")) {
+      $stmt->bind_param("ssss", $last, $first, $dob, $dod);
+    } else {
+      echo database_error();
+      return;
+    }
   } else {
-    $stmt = $mysqli->prepare("INSERT INTO Director(id, last, first, dob, dod) VALUES($id, ?, ?, ?, NULL)");
-    $stmt->bind_param("sss", $last, $first, $dob);
+    if ($stmt = $mysqli->prepare("INSERT INTO Director(id, last, first, dob, dod) VALUES($id, ?, ?, ?, NULL)")) {
+      $stmt->bind_param("sss", $last, $first, $dob);
+    } else {
+      echo database_error();
+      return;
+    }
   }
 
   if (!$stmt->execute()) {
@@ -89,12 +109,15 @@ function insert_director($mysqli, $id, $last, $first, $dob, $dod) {
  * @return integer id of next person
  */
 function get_next_person_id($mysqli) {
-  $result = $mysqli->query("SELECT id FROM MaxPersonID");
-  $id = $result->fetch_assoc()['id'] + 1;
-  $stmt = $mysqli->prepare("UPDATE MaxPersonID SET id=$id");
-  $stmt->execute();
-  $stmt->close();
-  return $id;
+  if ($result = $mysqli->query("SELECT id FROM MaxPersonID")) {
+    $id = $result->fetch_assoc()['id'] + 1;
+    if ($stmt = $mysqli->prepare("UPDATE MaxPersonID SET id=$id")) {
+      $stmt->execute();
+      $stmt->close();
+      return $id;
+    }
+  }
+  return -1;
 }
 
 /**

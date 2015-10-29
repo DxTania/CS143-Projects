@@ -6,8 +6,8 @@ if ($mysqli->connect_errno) {
   echo database_error();
 } else {
   add_relation($mysqli);
+  $mysqli->close();
 }
-$mysqli->close();
 
 /**
  * Add actor or director relation based on type parameter in post
@@ -38,16 +38,19 @@ function add_relation($mysqli) {
  * @param $mysqli mysqli object
  */
 function add_actor_relation($mysqli, $mid, $aid, $role) {
-  $stmt = $mysqli->prepare("INSERT INTO MovieActor(mid, aid, role) VALUES(?, ?, ?)");
-  $stmt->bind_param("iis", $mid, $aid, $role);
+  if ($stmt = $mysqli->prepare("INSERT INTO MovieActor(mid, aid, role) VALUES(?, ?, ?)")) {
+    $stmt->bind_param("iis", $mid, $aid, $role);
 
-  if (!$stmt->execute()) {
-    echo database_error();
+    if (!$stmt->execute()) {
+      echo database_error();
+    } else {
+      echo create_result(1, "Actor was added!");
+    }
+
+    $stmt->close();
   } else {
-    echo create_result(1, "Actor was added!");
+    echo database_error();
   }
-
-  $stmt->close();
 }
 
 /**
@@ -56,14 +59,17 @@ function add_actor_relation($mysqli, $mid, $aid, $role) {
  * @param $mysqli mysqli object
  */
 function add_director_relation($mysqli, $mid, $did) {
-  $stmt = $mysqli->prepare("INSERT INTO MovieDirector(mid, did) VALUES(?, ?)");
-  $stmt->bind_param("ii", $mid, $did);
+  if ($stmt = $mysqli->prepare("INSERT INTO MovieDirector(mid, did) VALUES(?, ?)")) {
+    $stmt->bind_param("ii", $mid, $did);
 
-  if (!$stmt->execute()) {
-    echo database_error();
+    if (!$stmt->execute()) {
+      echo database_error();
+    } else {
+      echo create_result(1, "Director was added!");
+    }
+
+    $stmt->close();
   } else {
-    echo create_result(1, "Director was added!");
+    echo database_error();
   }
-
-  $stmt->close();
 }
