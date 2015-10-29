@@ -23,8 +23,8 @@
     $mysqli = new mysqli("localhost", "cs143", "", "CS143");
     if ($mysqli->connect_errno) {
       echo "Database error";
-    } else {
-      $stmt = $mysqli->prepare("SELECT id, title FROM Movie WHERE id = ?");
+    } else if ($stmt = $mysqli->prepare("SELECT id, title FROM Movie WHERE id = ?")) {
+
       $stmt->bind_param("i", $_GET['mid']);
       if (!$stmt->execute()) {
         echo "Failure";
@@ -70,7 +70,13 @@
 
           <button type="submit" class="right small">Add Review</button>
         </form>
-    <?php } } ?>
+    <?php
+      }
+      $mysqli->close();
+    } else {
+      echo "Database error";
+      $mysqli->close();
+    } ?>
   </div>
 
   <div class="medium-3 large-3 pull-9 columns">

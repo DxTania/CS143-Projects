@@ -23,10 +23,10 @@
     $mysqli = new mysqli("localhost", "cs143", "", "CS143");
     if ($mysqli->connect_errno) {
       echo "Database error";
-    } else {
-      $stmt = $mysqli->prepare("SELECT id, title, year, rating, company
+    } else if ($stmt = $mysqli->prepare("SELECT id, title, year, rating, company
                                 FROM Movie
-                                WHERE id = ?");
+                                WHERE id = ?")) {
+
       $stmt->bind_param("i", $_GET['id']);
       if (!$stmt->execute()) {
         echo "Failure";
@@ -150,13 +150,21 @@
             }
             $stmt->close();
           }
+
+          $mysqli->close();
           ?>
 
           <a href="../add/addReview.php?mid=<?php echo $mid ?>" class="button small right">
             Add Review
           </a>
 
-      <?php } } } ?>
+      <?php
+        }
+      }
+    } else {
+      echo "Database error";
+      $mysqli->close();
+    } ?>
 
   </div>
 

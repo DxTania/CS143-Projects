@@ -23,8 +23,8 @@
     $mysqli = new mysqli("localhost", "cs143", "", "CS143");
     if ($mysqli->connect_errno) {
       echo "Database error";
-    } else {
-      $stmt = $mysqli->prepare("SELECT id, first, last, dob, dod, sex FROM Actor WHERE id = ?");
+    } else if ($stmt = $mysqli->prepare("SELECT id, first, last, dob, dod, sex FROM Actor WHERE id = ?")) {
+
       $stmt->bind_param("i", $_GET['id']);
       if (!$stmt->execute()) {
         echo "Failure";
@@ -76,9 +76,17 @@
             }
             $stmt->close();
           }
+
+          $mysqli->close();
           ?>
 
-        <?php } } } ?>
+        <?php
+        }
+      }
+    } else {
+      echo "Database error";
+      $mysqli->close();
+    }?>
 
   </div>
 

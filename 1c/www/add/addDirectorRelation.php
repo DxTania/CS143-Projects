@@ -38,16 +38,16 @@
           <label>Movie
             <select name="movie">
               <?php
-              $movies = $mysqli->query("SELECT id, title, year FROM Movie ORDER BY title");
-
-              while($row = $movies->fetch_assoc()) {
-                $id = $row['id'];
-                $title = $row['title'];
-                $year = $row['year'];
-                echo "<option value='$id'>$title ($year)</option>";
-              }
-              $mysqli->close();
-              ?>
+              if ($movies = $mysqli->query("SELECT id, title, year FROM Movie ORDER BY title")) {
+                while($row = $movies->fetch_assoc()) {
+                  $id = $row['id'];
+                  $title = $row['title'];
+                  $year = $row['year'];
+                  echo "<option value='$id'>$title ($year)</option>";
+                }
+              } else {
+                echo "<option>Database error</option>";
+              } ?>
             </select>
           </label>
         </div>
@@ -58,16 +58,18 @@
           <label>Director
             <select name="director">
               <?php
-              $mysqli = new mysqli("localhost", "cs143", "", "CS143");
-              $directors = $mysqli->query("SELECT id, first, last, dob FROM Director ORDER BY first, last");
-
-              while($row = $directors->fetch_assoc()) {
-                $id = $row['id'];
-                $first = $row['first'];
-                $last = $row['last'];
-                $dob = $row['dob'];
-                echo "<option value='$id'>$first $last ($dob)</option>";
+              if ($directors = $mysqli->query("SELECT id, first, last, dob FROM Director ORDER BY first, last")) {
+                while($row = $directors->fetch_assoc()) {
+                  $id = $row['id'];
+                  $first = $row['first'];
+                  $last = $row['last'];
+                  $dob = $row['dob'];
+                  echo "<option value='$id'>$first $last ($dob)</option>";
+                }
+              } else {
+                echo "<option>Database error</option>";
               }
+
               $mysqli->close();
               ?>
             </select>

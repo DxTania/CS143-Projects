@@ -52,12 +52,15 @@
           <label>MPAA Rating
             <select name="rating">
               <?php
-              $ratings = $mysqli->query("SELECT DISTINCT rating FROM Movie ORDER BY rating");
-
-              while($row = $ratings->fetch_assoc()) {
-                $rating = $row["rating"];
-                echo "<option value='$rating'>$rating</option>";
+              if ($ratings = $mysqli->query("SELECT DISTINCT rating FROM Movie ORDER BY rating")) {
+                while($row = $ratings->fetch_assoc()) {
+                  $rating = $row["rating"];
+                  echo "<option value='$rating'>$rating</option>";
+                }
+              } else {
+                echo "<option>Database error</option>";
               }
+
               ?>
             </select>
           </label>
@@ -73,15 +76,18 @@
         <div class="large-9 columns end">
           <label>Genres</label>
           <?php
-          $genres = $mysqli->query("SELECT DISTINCT genre FROM MovieGenre ORDER BY genre");
-
-          while($row = $genres->fetch_assoc()) {
-            $genre = $row["genre"];
-            echo "<div class='inline-block'>
+          if ($genres = $mysqli->query("SELECT DISTINCT genre FROM MovieGenre ORDER BY genre")) {
+            while($row = $genres->fetch_assoc()) {
+              $genre = $row["genre"];
+              echo "<div class='inline-block'>
                     <input type='checkbox' name='genres[]' value='$genre' id='$genre'/>
                     <label for='$genre'>$genre</label>
                   </div>";
+            }
+          } else {
+            echo "Database error";
           }
+
           $mysqli->close();
           ?>
         </div>

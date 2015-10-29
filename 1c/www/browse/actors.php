@@ -24,8 +24,8 @@
     $mysqli = new mysqli("localhost", "cs143", "", "CS143");
     if ($mysqli->connect_errno) {
       echo "Database error";
-    } else {
-      $stmt = $mysqli->prepare("SELECT id, first, last, dob FROM Actor ORDER BY first, last LIMIT ?, 20");
+    } else if ($stmt = $mysqli->prepare("SELECT id, first, last, dob FROM Actor ORDER BY first, last LIMIT ?, 20")) {
+
       $page = isset($_GET['page']) ? (int) $_GET['page'] : 0;
       $lim_start = $page * 20;
       $stmt->bind_param("i", $lim_start);
@@ -38,7 +38,8 @@
         }
         $stmt->close();
       }
-    }
+
+      $mysqli->close();
     ?>
 
     <br/>
@@ -46,6 +47,11 @@
       <a href="?page=<?php echo $page - 1; ?>" class="button small left">Previous</a>
     <?php } ?>
     <a href="?page=<?php echo $page + 1; ?>" class="button small right">Next</a>
+    <?php
+    } else {
+      echo "Database error";
+      $mysqli->close();
+    }?>
   </div>
 
   <div class="medium-3 large-3 pull-9 columns">

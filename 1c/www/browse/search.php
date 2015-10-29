@@ -40,23 +40,24 @@
         }
         $conditions = $conditions." TRUE";
 
-        $actors = $mysqli->query("SELECT id, first, last, dob
+        if ($actors = $mysqli->query("SELECT id, first, last, dob
                                   FROM Actor
                                   WHERE $conditions
-                                  ORDER BY first, last");
+                                  ORDER BY first, last")) {
+          while($row = $actors->fetch_assoc()) {
+            $id = $row['id'];
+            $first = $row["first"];
+            $last = $row["last"];
+            $dob = $row["dob"];
+            echo "<a href='../browse/actor.php?id=$id'>$first $last ($dob)</a><br/>";
+          }
 
-        while($row = $actors->fetch_assoc()) {
-          $id = $row['id'];
-          $first = $row["first"];
-          $last = $row["last"];
-          $dob = $row["dob"];
-          echo "<a href='../browse/actor.php?id=$id'>$first $last ($dob)</a><br/>";
+          if ($actors->num_rows == 0) {
+            echo "No results.";
+          }
+        } else {
+          echo "Database error";
         }
-
-        if ($actors->num_rows == 0) {
-          echo "No results.";
-        }
-
         ?>
 
       </div>
@@ -71,23 +72,26 @@
         }
         $conditions = $conditions." TRUE";
 
-        $movies = $mysqli->query("SELECT id, title, year
+        if ($movies = $mysqli->query("SELECT id, title, year
                                   FROM Movie
                                   WHERE $conditions
-                                  ORDER BY title");
+                                  ORDER BY title")) {
+          while($row = $movies->fetch_assoc()) {
+            $id = $row['id'];
+            $title = $row["title"];
+            $year = $row["year"];
+            echo "<a href='../browse/movie.php?id=$id'>$title ($year)</a><br/>";
+          }
 
-        while($row = $movies->fetch_assoc()) {
-          $id = $row['id'];
-          $title = $row["title"];
-          $year = $row["year"];
-          echo "<a href='../browse/movie.php?id=$id'>$title ($year)</a><br/>";
+          if ($movies->num_rows == 0) {
+            echo "No results.";
+          }
+
+          $mysqli->close();
+        } else {
+          echo "Database error";
+          $mysqli->close();
         }
-
-        if ($movies->num_rows == 0) {
-          echo "No results.";
-        }
-
-        $mysqli->close();
         ?>
       </div>
     </div>

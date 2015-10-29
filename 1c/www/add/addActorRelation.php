@@ -38,13 +38,15 @@
           <label>Movie
             <select name="movie">
               <?php
-              $movies = $mysqli->query("SELECT id, title, year FROM Movie ORDER BY title");
-
-              while($row = $movies->fetch_assoc()) {
-                $id = $row['id'];
-                $title = $row['title'];
-                $year = $row['year'];
-                echo "<option value='$id'>$title ($year)</option>";
+              if ($movies = $mysqli->query("SELECT id, title, year FROM Movie ORDER BY title")) {
+                while($row = $movies->fetch_assoc()) {
+                  $id = $row['id'];
+                  $title = $row['title'];
+                  $year = $row['year'];
+                  echo "<option value='$id'>$title ($year)</option>";
+                }
+              } else {
+                echo "<option>Database error</option>";
               }
               ?>
             </select>
@@ -57,15 +59,18 @@
           <label>Actor
             <select name="actor">
               <?php
-              $actors = $mysqli->query("SELECT id, first, last, dob FROM Actor ORDER BY first, last");
-
-              while($row = $actors->fetch_assoc()) {
-                $id = $row['id'];
-                $first = $row['first'];
-                $last = $row['last'];
-                $dob = $row['dob'];
-                echo "<option value='$id'>$first $last ($dob)</option>";
+              if ($actors = $mysqli->query("SELECT id, first, last, dob FROM Actor ORDER BY first, last")) {
+                while($row = $actors->fetch_assoc()) {
+                  $id = $row['id'];
+                  $first = $row['first'];
+                  $last = $row['last'];
+                  $dob = $row['dob'];
+                  echo "<option value='$id'>$first $last ($dob)</option>";
+                }
+              } else {
+                echo "<option>Database error</option>";
               }
+
               $mysqli->close();
               ?>
             </select>
