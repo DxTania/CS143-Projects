@@ -68,7 +68,7 @@
     <ul class="side-nav">
       <li><a href="../">Home</a></li>
       <li><a href="../add/addPerson.html">Add Person</a></li>
-      <li><a href="../add/addMovie.php">Add Movie</a></li>
+      <li><a href="../add/addMovie.html">Add Movie</a></li>
       <li><a href="../add/addActorRelation.php">Add Actor Relation</a></li>
       <li><a href="../add/addDirectorRelation.php">Add Director Relation</a></li>
       <li class="active"><a href="movies.php">Browse Movies</a></li>

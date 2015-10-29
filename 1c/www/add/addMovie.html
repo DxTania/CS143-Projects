@@ -1,0 +1,204 @@
+<!doctype html>
+<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
+<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
+
+<head>
+  <meta charset="utf-8"/>
+  <title>TheMovieDB - Add Movie</title>
+  <link rel="stylesheet" href="../css/foundation.css"/>
+  <script src="../js/vendor/modernizr.js"></script>
+</head>
+
+<body>
+
+<div class="row">
+  <div class="large-12 columns">
+    <h1><img src="../img/logo.png"/></h1>
+  </div>
+</div>
+
+<div class="row">
+  <div class="medium-9 large-9 push-3 columns">
+    <h3>Add Movie</h3>
+
+    <div id="result"></div>
+
+    Help us keep TheMovieDB up to date! Enter new information about movies here.<br/><br/>
+
+    <form data-abide="ajax" id="movie-form">
+      <div class="row">
+        <div class="large-9 columns end">
+          <label for="movie-title">Movie Title</label>
+          <input id="movie-title" type="text" name="title" placeholder="Title" maxlength="100" required/>
+          <small class="error">Movie title is required</small>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-3 small-3 columns">
+          <label for="release-year">Release Year</label>
+          <input id="release-year" type="text" name="year" pattern="^[0-9][0-9][0-9][0-9]$" maxlength="4" placeholder="YYYY"/>
+          <small class="error">Release year must be valid</small>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-3 small-3 columns">
+          <label>MPAA Rating
+            <select name="rating">
+              <option value="G">G</option>
+              <option value="NC-17">NC-17</option>
+              <option value="PG">PG</option>
+              <option value="PG-13">PG-13</option>
+              <option value="R">R</option>
+              <option value="surrendere">surrendere</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-9 columns end">
+          <label for="company">Production Company</label>
+          <input id="company" type="text" name="company" placeholder="Company name" maxlength="50"/>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-9 columns end">
+          <label>Genres</label>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="Action" id="Action">
+            <label for="Action">Action</label>
+          </div>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="Adult" id="Adult">
+            <label for="Adult">Adult</label>
+          </div>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="Adventure" id="Adventure">
+            <label for="Adventure">Adventure</label>
+          </div>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="Animation" id="Animation">
+            <label for="Animation">Animation</label>
+          </div>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="Comedy" id="Comedy">
+            <label for="Comedy">Comedy</label>
+          </div>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="Crime" id="Crime">
+            <label for="Crime">Crime</label>
+          </div>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="Documentary" id="Documentary">
+            <label for="Documentary">Documentary</label>
+          </div>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="Drama" id="Drama">
+            <label for="Drama">Drama</label>
+          </div>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="Family" id="Family">
+            <label for="Family">Family</label>
+          </div>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="Fantasy" id="Fantasy">
+            <label for="Fantasy">Fantasy</label>
+          </div>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="Horror" id="Horror">
+            <label for="Horror">Horror</label>
+          </div>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="Musical" id="Musical">
+            <label for="Musical">Musical</label>
+          </div>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="Mystery" id="Mystery">
+            <label for="Mystery">Mystery</label>
+          </div>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="Romance" id="Romance">
+            <label for="Romance">Romance</label>
+          </div>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="Sci-Fi" id="Sci-Fi">
+            <label for="Sci-Fi">Sci-Fi</label>
+          </div>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="Short" id="Short">
+            <label for="Short">Short</label>
+          </div>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="Thriller" id="Thriller">
+            <label for="Thriller">Thriller</label>
+          </div>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="War" id="War">
+            <label for="War">War</label>
+          </div>
+          <div class="inline-block">
+            <input type="checkbox" name="genres[]" value="Western" id="Western">
+            <label for="Western">Western</label>
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="right small">Add Movie</button>
+    </form>
+  </div>
+
+  <div class="medium-3 large-3 pull-9 columns">
+    <form action="../browse/search.php" method="get">
+      <div class="row collapse">
+        <div class="small-9 columns">
+          <input type="text" placeholder="Search" name="query">
+        </div>
+        <div class="small-3 columns">
+          <button type="submit" class="button postfix">Go</button>
+        </div>
+      </div>
+    </form>
+
+    <ul class="side-nav">
+      <li><a href="../">Home</a></li>
+      <li><a href="addPerson.html">Add Person</a></li>
+      <li class="active"><a href="addMovie.html">Add Movie</a></li>
+      <li><a href="addActorRelation.php">Add Actor Relation</a></li>
+      <li><a href="addDirectorRelation.php">Add Director Relation</a></li>
+      <li><a href="../browse/movies.php">Browse Movies</a></li>
+      <li><a href="../browse/actors.php">Browse Actors</a></li>
+    </ul>
+  </div>
+</div>
+
+<footer class="row">
+  <div class="large-12 columns">
+    <hr/>
+    <div class="row">
+      <div class="large-6 columns">
+        <p>&copy; Copyright no one at all. Go to town.</p>
+      </div>
+      <div class="large-6 columns">
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/vendor/jquery.js"></script>
+<script src="../js/foundation.min.js"></script>
+<script src="../js/result.js"></script>
+<script>
+  $(document).foundation();
+
+  $('#movie-form').on('valid.fndtn.abide', function () {
+    $.post('../query/addMovie.php', $('#movie-form').serialize(), function(data) {
+      processResult(data);
+      $('#movie-form')[0].reset();
+      $('html,body').scrollTop(0);
+    });
+  });
+
+  $('input, textarea, select').off('.abide').on('blur.fndtn.abide change.fndtn.abide', function (e) {
+    // do nothing
+  });
+</script>
+</body>
+</html>
