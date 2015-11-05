@@ -136,7 +136,7 @@ RC SqlEngine::load(const string& table, const string& loadfile, bool index)
   ifstream stream;
   RecordFile tableRF;
 
-  // open file and open/create table file
+  // open file and open / create table record file
   stream.open(loadfile.c_str());
   status = tableRF.open(table + ".tbl", 'w');
   if (status != 0) {
