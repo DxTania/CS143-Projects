@@ -132,9 +132,36 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
 
 RC SqlEngine::load(const string& table, const string& loadfile, bool index)
 {
-  /* your code here */
+  RC status;
+  ifstream stream;
+  RecordFile tableRF;
 
-  return 0;
+  // open file and open/create table file
+  stream.open(loadfile.c_str());
+  status = tableRF.open(table + ".tbl", 'w');
+  if (status != 0) {
+    return status;
+  }
+
+  int key;
+  RecordId id;
+  string line, value;
+
+  // read key, value line by line and append to table
+  while (getline(stream, line)) {
+    status = parseLoadLine(line, key, value);
+    if(status != 0) {
+      return status;
+    } else {
+      status = tableRF.append(key, value, id);
+      if (status != 0) {
+        return status;
+      }
+    }
+  }
+
+  stream.close();
+  return tableRF.close();
 }
 
 RC SqlEngine::parseLoadLine(const string& line, int& key, string& value)
