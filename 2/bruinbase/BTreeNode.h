@@ -18,6 +18,18 @@
  */
 class BTLeafNode {
   public:
+
+    struct LeafEntry {
+        RecordId rid;
+        int key;
+    };
+
+    BTLeafNode();
+
+    void readLeafEntry(LeafEntry *entry, int position);
+
+    void printNode();
+
    /**
     * Insert the (key, rid) pair to the node.
     * Remember that all keys inside a B+tree node should be kept sorted.
@@ -112,7 +124,19 @@ class BTLeafNode {
  */
 class BTNonLeafNode {
   public:
-   /**
+
+  struct NonLeafEntry {
+      PageId pid;
+      int key;
+  };
+
+  BTNonLeafNode();
+
+  void readNonLeafEntry(NonLeafEntry *entry, int position);
+
+  void printNode();
+
+  /**
     * Insert a (key, pid) pair to the node.
     * Remember that all keys inside a B+tree node should be kept sorted.
     * @param key[IN] the key to insert

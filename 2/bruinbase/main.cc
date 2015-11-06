@@ -9,12 +9,17 @@
  
 #include "Bruinbase.h"
 #include "SqlEngine.h"
+#include "BTreeNode.h"
 #include <cstdio>
+#include <iostream>
 
 int main()
 {
   // run the SQL engine taking user commands from standard input (console).
-  SqlEngine::run(stdin);
+//  SqlEngine::run(stdin);
 
+  BTNonLeafNode root;
+  root.initializeRoot(1, 20, 2);
+  root.printNode();
   return 0;
 }
