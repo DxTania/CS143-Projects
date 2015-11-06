@@ -10,8 +10,8 @@
 #include "Bruinbase.h"
 #include "SqlEngine.h"
 #include "BTreeNode.h"
-#include <cstdio>
-#include <iostream>
+//#include <cstdio>
+//#include <iostream>
 
 int main()
 {

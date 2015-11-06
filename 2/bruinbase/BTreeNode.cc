@@ -289,10 +289,10 @@ void BTNonLeafNode::printNode()
   NonLeafEntry entry;
   for (int i = 0; i < getKeyCount(); i++) {
     readNonLeafEntry(&entry, i);
-    cerr << "Key:" << entry.key << " Page id:" << entry.pid << "; ";
+    cout << "Key:" << entry.key << " Page id:" << entry.pid << "; ";
   }
 
   PageId pid;
   memcpy(&pid, buffer + getKeyCount() * sizeof(NonLeafEntry), sizeof(PageId));
-  cerr << pid << endl;
+  cout << pid << endl;
 }
