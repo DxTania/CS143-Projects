@@ -28,6 +28,8 @@ class BTLeafNode {
 
     void readLeafEntry(LeafEntry *entry, int position);
 
+    void writeLeafEntry(LeafEntry *entry, int position);
+
     void printNode();
 
    /**
@@ -126,13 +128,15 @@ class BTNonLeafNode {
   public:
 
   struct NonLeafEntry {
-      PageId pid;
       int key;
+      PageId pid;
   };
 
   BTNonLeafNode();
 
   void readNonLeafEntry(NonLeafEntry *entry, int position);
+
+  void writeNonLeafEntry(NonLeafEntry *entry, int position);
 
   void printNode();
 
