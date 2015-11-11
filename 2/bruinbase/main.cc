@@ -25,7 +25,7 @@ int main()
   root.insert(50, 5);
   root.insert(40, 4);
   root.insert(10, 1);
-//  root.printNode();
+  root.printNode();
 
 
   RecordId id;
@@ -38,7 +38,7 @@ int main()
   leaf.insert(20, id);
   leaf.insert(40, id);
   leaf.insert(10, id);
-  leaf.printNode();
+//  leaf.printNode();
 
   return 0;
 }

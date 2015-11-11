@@ -26,9 +26,11 @@ class BTLeafNode {
 
     BTLeafNode();
 
-    void readLeafEntry(LeafEntry *entry, int position);
+    LeafEntry readLeafEntry(int entryNum);
 
-    void writeLeafEntry(LeafEntry *entry, int position);
+    void writeLeafEntry(LeafEntry *entry, int entryNum);
+
+    void zeroLeafEntry(int entryNum);
 
     void printNode();
 
@@ -134,9 +136,11 @@ class BTNonLeafNode {
 
   BTNonLeafNode();
 
-  void readNonLeafEntry(NonLeafEntry *entry, int position);
+  NonLeafEntry readNonLeafEntry(int entryNum);
 
-  void writeNonLeafEntry(NonLeafEntry *entry, int position);
+  void writeNonLeafEntry(NonLeafEntry *entry, int entryNum);
+
+  void zeroNonLeafEntry(int entryNum);
 
   void printNode();
 
