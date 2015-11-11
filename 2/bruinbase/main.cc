@@ -25,20 +25,26 @@ int main()
   root.insert(50, 5);
   root.insert(40, 4);
   root.insert(10, 1);
-  root.printNode();
+//  root.printNode();
 
 
   RecordId id;
   id.pid = 1;
   id.sid = 10;
   BTLeafNode leaf;
-  leaf.insert(30, id);
-  id.pid = 2;
 
   leaf.insert(20, id);
   leaf.insert(40, id);
   leaf.insert(10, id);
-//  leaf.printNode();
+  leaf.insert(30, id);
+
+  int i;
+  BTLeafNode sibling;
+  leaf.insertAndSplit(25, id, sibling, i);
+
+  leaf.printNode();
+  std::cout << "--" << std::endl;
+  sibling.printNode();
 
   return 0;
 }

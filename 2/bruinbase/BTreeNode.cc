@@ -119,12 +119,20 @@ RC BTLeafNode::insert(int key, const RecordId& rid)
 RC BTLeafNode::insertAndSplit(int key, const RecordId& rid, 
                               BTLeafNode& sibling, int& siblingKey)
 {
+  int numEntries = getKeyCount();
+  bool fixMin = false;
+  int siblingStart = (numEntries + 1) / 2;
+
   int pos;
   locate(key, pos);
 
-  // Copy half the keys into sibling. One more key on left side.
-  int numEntries = getKeyCount();
-  int siblingStart = (numEntries + 1) / 2;
+  // Ensure half and half
+  if (pos < siblingStart && numEntries % 2 == 1) {
+    siblingStart--;
+    fixMin = true;
+  }
+
+  // Copy half the keys into sibling.
   for (int i = siblingStart; i < numEntries; i++) {
     LeafEntry entry = readLeafEntry(i);
     sibling.insert(entry.key, entry.rid);
@@ -132,7 +140,7 @@ RC BTLeafNode::insertAndSplit(int key, const RecordId& rid,
     zeroLeafEntry(i);
   }
 
-  if (pos < siblingStart) {
+  if (pos < siblingStart || fixMin) {
     insert(key, rid);
   } else {
     sibling.insert(key, rid);
@@ -335,6 +343,7 @@ RC BTNonLeafNode::insert(int key, PageId pid)
 RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, int& midKey)
 {
   int numEntries = getKeyCount();
+  bool fixMin = false;
 
   int pos;
   for (pos = 0; pos < numEntries; pos++) {
@@ -346,6 +355,13 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
 
   // Copy half the keys into sibling. One more key on left side.
   int siblingStart = (numEntries + 1) / 2;
+
+  // Ensure minimum requirement
+  if (pos < siblingStart && numEntries % 2 == 1) {
+    siblingStart--;
+    fixMin = true;
+  }
+
   for (int i = siblingStart; i < numEntries; i++) {
     NonLeafEntry entry = readNonLeafEntry(i);
     sibling.insert(entry.key, entry.pid);
@@ -353,7 +369,7 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
     zeroNonLeafEntry(i);
   }
 
-  if (pos < siblingStart) {
+  if (pos < siblingStart || fixMin) {
     insert(key, pid);
   } else {
     sibling.insert(key, pid);
