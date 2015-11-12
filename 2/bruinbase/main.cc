@@ -25,7 +25,7 @@ int main()
   root.insert(50, 5);
   root.insert(40, 4);
   root.insert(10, 1);
-//  root.printNode();
+  root.printNode();
 
 
   RecordId id;
@@ -33,18 +33,17 @@ int main()
   id.sid = 10;
   BTLeafNode leaf;
 
-  leaf.insert(20, id);
   leaf.insert(40, id);
   leaf.insert(10, id);
   leaf.insert(30, id);
 
   int i;
   BTLeafNode sibling;
-  leaf.insertAndSplit(25, id, sibling, i);
+  leaf.insertAndSplit(49, id, sibling, i);
 
-  leaf.printNode();
+//  leaf.printNode();
   std::cout << "--" << std::endl;
-  sibling.printNode();
+//  sibling.printNode();
 
   return 0;
 }

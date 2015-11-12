@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string.h>
-#include <math.h>
 #include "BTreeNode.h"
 
 using namespace std;
@@ -13,11 +12,9 @@ BTLeafNode::BTLeafNode()
 /**
  * A leaf entry corresponds to key, record id pair in the leaf node
  */
-BTLeafNode::LeafEntry BTLeafNode::readLeafEntry(int entryNum)
+BTLeafNode::LeafEntry* BTLeafNode::readLeafEntry(int entryNum)
 {
-  LeafEntry entry;
-  memcpy(&entry, buffer + entryNum * sizeof(LeafEntry), sizeof(LeafEntry));
-  return entry;
+  return ((LeafEntry*) buffer) + entryNum;
 }
 
 void BTLeafNode::writeLeafEntry(LeafEntry *entry, int entryNum)
@@ -62,9 +59,9 @@ int BTLeafNode::getKeyCount()
   int maxEntries = (PageFile::PAGE_SIZE - sizeof(PageId)) / sizeof(LeafEntry);
 
   for (numEntries = 0; numEntries < maxEntries; numEntries++) {
-    LeafEntry entry = readLeafEntry(numEntries);
+    LeafEntry* entry = readLeafEntry(numEntries);
     // stop when key is 0
-    if (entry.key == 0) {
+    if (entry->key == 0) {
       break;
     }
   }
@@ -91,8 +88,7 @@ RC BTLeafNode::insert(int key, const RecordId& rid)
     if (pos < numEntries) {
       // Shift all other entries down
       for (int i = numEntries - 1; i >= pos; i--) {
-        LeafEntry entry = readLeafEntry(i);
-        writeLeafEntry(&entry, i + 1);
+        writeLeafEntry(readLeafEntry(i), i + 1);
       }
     }
 
@@ -134,8 +130,8 @@ RC BTLeafNode::insertAndSplit(int key, const RecordId& rid,
 
   // Copy half the keys into sibling.
   for (int i = siblingStart; i < numEntries; i++) {
-    LeafEntry entry = readLeafEntry(i);
-    sibling.insert(entry.key, entry.rid);
+    LeafEntry* entry = readLeafEntry(i);
+    sibling.insert(entry->key, entry->rid);
     // Remove entry from this leaf
     zeroLeafEntry(i);
   }
@@ -146,7 +142,7 @@ RC BTLeafNode::insertAndSplit(int key, const RecordId& rid,
     sibling.insert(key, rid);
   }
 
-  siblingKey = readLeafEntry(siblingStart).key;
+  siblingKey = readLeafEntry(siblingStart)->key;
 
   return 0;
 }
@@ -165,10 +161,10 @@ RC BTLeafNode::insertAndSplit(int key, const RecordId& rid,
 RC BTLeafNode::locate(int searchKey, int& eid)
 {
   for (eid = 0; eid < getKeyCount(); eid++) {
-    LeafEntry entry = readLeafEntry(eid);
-    if (entry.key == searchKey) {
+    LeafEntry* entry = readLeafEntry(eid);
+    if (entry->key == searchKey) {
       return 0;
-    } else if (entry.key > searchKey) {
+    } else if (entry->key > searchKey) {
       return RC_NO_SUCH_RECORD;
     }
   }
@@ -190,9 +186,9 @@ RC BTLeafNode::readEntry(int eid, int& key, RecordId& rid)
     return RC_NO_SUCH_RECORD;
   }
 
-  LeafEntry entry = readLeafEntry(eid);
-  key = entry.key;
-  rid = entry.rid;
+  LeafEntry* entry = readLeafEntry(eid);
+  key = entry->key;
+  rid = entry->rid;
   return 0;
 }
 
@@ -221,8 +217,8 @@ RC BTLeafNode::setNextNodePtr(PageId pid)
 void BTLeafNode::printNode()
 {
   for (int i = 0; i < getKeyCount(); i++) {
-    LeafEntry entry = readLeafEntry(i);
-    cout << "Key: " << entry.key << " Pid: " << entry.rid.pid << " Sid: " << entry.rid.sid << endl;
+    LeafEntry* entry = readLeafEntry(i);
+    cout << "Key: " << entry->key << " Pid: " << entry->rid.pid << " Sid: " << entry->rid.sid << endl;
   }
 }
 
@@ -235,11 +231,9 @@ BTNonLeafNode::BTNonLeafNode()
  * A non-leaf entry corresponds to a key and PageId linking to child.
  * The node linked to will contain keys greater than or equal to
  */
-BTNonLeafNode::NonLeafEntry BTNonLeafNode::readNonLeafEntry(int entryNum)
+BTNonLeafNode::NonLeafEntry* BTNonLeafNode::readNonLeafEntry(int entryNum)
 {
-  NonLeafEntry entry;
-  memcpy(&entry, buffer + sizeof(PageId) + entryNum * sizeof(NonLeafEntry), sizeof(NonLeafEntry));
-  return entry;
+  return ((NonLeafEntry*) (buffer + sizeof(PageId))) + entryNum;
 }
 
 void BTNonLeafNode::writeNonLeafEntry(NonLeafEntry *entry, int entryNum)
@@ -284,9 +278,9 @@ int BTNonLeafNode::getKeyCount()
   int maxEntries = (PageFile::PAGE_SIZE - sizeof(PageId)) / sizeof(NonLeafEntry);
 
   for (numEntries = 0; numEntries < maxEntries; numEntries++) {
-    NonLeafEntry entry = readNonLeafEntry(numEntries);
+    NonLeafEntry* entry = readNonLeafEntry(numEntries);
     // stop when key is 0
-    if (entry.key == 0) {
+    if (entry->key == 0) {
       break;
     }
   }
@@ -310,15 +304,14 @@ RC BTNonLeafNode::insert(int key, PageId pid)
 
     int pos;
     for (pos = 0; pos < numEntries; pos++) {
-      NonLeafEntry entry = readNonLeafEntry(pos);
-      if (key < entry.key) {
+      NonLeafEntry* entry = readNonLeafEntry(pos);
+      if (key < entry->key) {
         break;
       }
     }
 
     for (int i = numEntries - 1; i >= pos; i--) {
-      NonLeafEntry entry = readNonLeafEntry(i);
-      writeNonLeafEntry(&entry, i + 1);
+      writeNonLeafEntry(readNonLeafEntry(i), i + 1);
     }
 
     NonLeafEntry entry = { key, pid };
@@ -347,8 +340,8 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
 
   int pos;
   for (pos = 0; pos < numEntries; pos++) {
-    NonLeafEntry entry = readNonLeafEntry(pos);
-    if (key < entry.key) {
+    NonLeafEntry* entry = readNonLeafEntry(pos);
+    if (key < entry->key) {
       break;
     }
   }
@@ -363,8 +356,8 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
   }
 
   for (int i = siblingStart; i < numEntries; i++) {
-    NonLeafEntry entry = readNonLeafEntry(i);
-    sibling.insert(entry.key, entry.pid);
+    NonLeafEntry* entry = readNonLeafEntry(i);
+    sibling.insert(entry->key, entry->pid);
     // Remove entry from this leaf
     zeroNonLeafEntry(i);
   }
@@ -375,7 +368,7 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
     sibling.insert(key, pid);
   }
 
-  midKey = readNonLeafEntry(siblingStart).key;
+  midKey = readNonLeafEntry(siblingStart)->key;
 
   return 0;
 }
@@ -390,9 +383,9 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
 RC BTNonLeafNode::locateChildPtr(int searchKey, PageId& pid)
 {
   for (int i = getKeyCount() - 1; i >= 0; i--) {
-    NonLeafEntry entry = readNonLeafEntry(i);
-    if (searchKey >= entry.key) {
-      return entry.pid;
+    NonLeafEntry* entry = readNonLeafEntry(i);
+    if (searchKey >= entry->key) {
+      return entry->pid;
     }
   }
 
@@ -424,7 +417,7 @@ void BTNonLeafNode::printNode()
   cout << first << "; ";
 
   for (int i = 0; i < getKeyCount(); i++) {
-    NonLeafEntry entry = readNonLeafEntry(i);
-    cout << "Key:" << entry.key << " Page id:" << entry.pid << "; ";
+    NonLeafEntry* entry = readNonLeafEntry(i);
+    cout << "Key:" << entry->key << " Page id:" << entry->pid << "; ";
   }
 }
