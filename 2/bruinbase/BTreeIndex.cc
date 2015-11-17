@@ -134,8 +134,9 @@ RC BTreeIndex::insertTraverse(int key, RecordId rid, PageId pid, PageId &sibling
       BTLeafNode sibling;
       leaf.insertAndSplit(key, rid, sibling, siblingKey);
 
-      // write both modified leaves
+      // write both modified leaves and set next node ptr to sibling
       siblingPid = pf.endPid();
+      leaf.setNextNodePtr(siblingPid);
       sibling.write(siblingPid, pf);
       leaf.write(pid, pf);
 
@@ -207,7 +208,25 @@ void BTreeIndex::printIndex(int key) {
  */
 RC BTreeIndex::locate(int searchKey, IndexCursor& cursor)
 {
-  return 0;
+
+  // Go to leaf node
+  PageId pid = rootPid;
+  for (int i = 1; i < treeHeight; i++) {
+    BTNonLeafNode nonLeafNode;
+    if (nonLeafNode.read(pid, pf) < 0) {
+      return RC_FILE_READ_FAILED;
+    }
+    nonLeafNode.locateChildPtr(searchKey, pid);
+  }
+
+  // Read leaf node
+  BTLeafNode leaf;
+  if (leaf.read(pid, pf) < 0) {
+    return RC_FILE_READ_FAILED;
+  }
+
+  cursor.pid = pid;
+  return leaf.locate(searchKey, cursor.eid);
 }
 
 /*
@@ -220,5 +239,13 @@ RC BTreeIndex::locate(int searchKey, IndexCursor& cursor)
  */
 RC BTreeIndex::readForward(IndexCursor& cursor, int& key, RecordId& rid)
 {
+  BTLeafNode leaf;
+  leaf.read(cursor.pid, pf);
+  leaf.readEntry(cursor.eid, key, rid);
+  cursor.eid++;
+  if (cursor.eid == leaf.getKeyCount()) {
+    cursor.eid = 0;
+    cursor.pid = leaf.getNextNodePtr();
+  }
   return 0;
 }

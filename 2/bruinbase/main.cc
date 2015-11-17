@@ -19,6 +19,7 @@ int main()
 //  SqlEngine::run(stdin);
 
   RecordId rid = { 1, 2 };
+  RecordId rid3 = {3, 4};
   BTreeIndex* index = new BTreeIndex();
   index->open("myindex7", 'w');
   index->insert(10, rid);
@@ -34,11 +35,18 @@ int main()
 
 //  // test this case overflow non-leaf root node
   index->insert(100, rid);
-  index->insert(65, rid);
+  index->insert(65, rid3);
   index->insert(66, rid);
   index->printIndex(65);
-  index->close();
 
+  IndexCursor cursor;
+  index->locate(65, cursor);
+  int key;
+  RecordId rid2;
+  index->readForward(cursor, key, rid2);
+  std::cout << rid2.pid;
+
+  index->close();
 //  BTNonLeafNode node;
 //  node.insert(10, 1);
 //  node.insert(20, 2);
