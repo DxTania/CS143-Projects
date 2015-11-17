@@ -31,7 +31,7 @@ BTreeIndex::BTreeIndex()
 RC BTreeIndex::open(const string& indexname, char mode)
 {
   char buffer[PageFile::PAGE_SIZE];
-  if (pf.open(indexname + ".index5", mode) == 0) {
+  if (pf.open(indexname + ".index", mode) == 0) {
     if (pf.endPid() == 0) {
       // create the index
       BTLeafNode leaf;
@@ -265,9 +265,14 @@ RC BTreeIndex::readForward(IndexCursor& cursor, int& key, RecordId& rid)
   leaf.read(cursor.pid, pf);
   leaf.readEntry(cursor.eid, key, rid);
   cursor.eid++;
+
   if (cursor.eid == leaf.getKeyCount()) {
     cursor.eid = 0;
     cursor.pid = leaf.getNextNodePtr();
+  }
+
+  if (cursor.pid == RC_END_OF_TREE) { // use int min instead?
+    return RC_END_OF_TREE;
   }
   return 0;
 }

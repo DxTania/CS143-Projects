@@ -7,6 +7,7 @@ using namespace std;
 BTLeafNode::BTLeafNode()
 {
   memset(buffer, 0, PageFile::PAGE_SIZE);
+  setNextNodePtr(RC_END_OF_TREE);
 }
 
 /**
@@ -228,6 +229,7 @@ void BTLeafNode::printNode(PageId pid)
     cout << "Key: " << entry->key << " Pid: " << entry->rid.pid << " Sid: " << entry->rid.sid << endl;
   }
 
+  cout << getNextNodePtr() << endl;
   cout << "-----End Node----" << endl;
 }
 
