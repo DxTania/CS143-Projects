@@ -9,12 +9,46 @@
  
 #include "Bruinbase.h"
 #include "SqlEngine.h"
+#include "BTreeIndex.h"
 #include <cstdio>
+#include <iostream>
 
 int main()
 {
   // run the SQL engine taking user commands from standard input (console).
-  SqlEngine::run(stdin);
+//  SqlEngine::run(stdin);
+
+  RecordId rid = { 1, 2 };
+  BTreeIndex* index = new BTreeIndex();
+  index->open("myindex7", 'w');
+  index->insert(10, rid);
+  index->insert(20, rid);
+  index->insert(30, rid);
+  index->insert(40, rid);
+  index->insert(50, rid);
+  index->insert(60, rid);
+
+  index->insert(70, rid);
+  index->insert(80, rid);
+  index->insert(90, rid);
+
+//  // test this case overflow non-leaf root node
+  index->insert(100, rid);
+  index->insert(65, rid);
+  index->insert(66, rid);
+  index->printIndex(65);
+  index->close();
+
+//  BTNonLeafNode node;
+//  node.insert(10, 1);
+//  node.insert(20, 2);
+//  node.insert(30, 3);
+//  BTNonLeafNode sibling;
+//  int midKey;
+//  node.insertAndSplit(35, 5, sibling, midKey);
+//  node.printNode(100);
+//  sibling.printNode(200);
+//  std::cout << "Mid key " << midKey;
 
   return 0;
 }

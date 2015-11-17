@@ -17,7 +17,8 @@ using namespace std;
  */
 BTreeIndex::BTreeIndex()
 {
-    rootPid = -1;
+  rootPid = -1;
+  treeHeight = 0;
 }
 
 /*
@@ -29,7 +30,21 @@ BTreeIndex::BTreeIndex()
  */
 RC BTreeIndex::open(const string& indexname, char mode)
 {
-    return 0;
+  rootPid = 0;
+  if (pf.open(indexname + ".index", mode) == 0) {
+    if (pf.endPid() == 0) {
+      // create the index
+      BTLeafNode leaf;
+      treeHeight = 1;
+      return leaf.write(rootPid, pf);
+    } else {
+      BTLeafNode leaf;
+      treeHeight = 1;
+      return leaf.write(rootPid, pf);
+    }
+  }
+
+  return RC_FILE_OPEN_FAILED;
 }
 
 /*
@@ -38,7 +53,7 @@ RC BTreeIndex::open(const string& indexname, char mode)
  */
 RC BTreeIndex::close()
 {
-    return 0;
+  return pf.close();
 }
 
 /*
@@ -49,7 +64,127 @@ RC BTreeIndex::close()
  */
 RC BTreeIndex::insert(int key, const RecordId& rid)
 {
-    return 0;
+  PageId siblingPid;
+  int siblingKey;
+  return insertTraverse(key, rid, rootPid, siblingPid, siblingKey, 1);
+}
+
+/**
+ * Recursively insert (key, RecordId) pair to the index.
+ * @param key[IN] the key for the value inserted into the index
+ * @param rid[IN] the RecordId for the record being inserted into the index
+ * @param pid [IN] the page id of the node we're looking at
+ * @param siblingPid[OUT] the page id of overflowed sibling
+ * @param siblingKey[OUT] the first key the sibling contains
+ * @param curHeight[IN] the height we are in the tree
+ * @return error code. 0 if no error
+ */
+RC BTreeIndex::insertTraverse(int key, RecordId rid, PageId pid, PageId &siblingPid, int &siblingKey, int curHeight)
+{
+  if (curHeight < treeHeight) {
+    // non leaf nodes
+    BTNonLeafNode node;
+    node.read(pid, pf);
+
+    PageId childPid;
+    node.locateChildPtr(key, childPid);
+
+    int rc = insertTraverse(key, rid, childPid, siblingPid, siblingKey, curHeight + 1);
+    if (rc == RC_NODE_FULL) {
+      // we split into two
+
+      if (node.isFull()) {
+        // overflow, split here too. check if we are root
+        BTNonLeafNode sibling;
+        int midKey;
+        node.insertAndSplit(siblingKey, siblingPid, sibling, midKey);
+        siblingPid = pf.endPid();
+        sibling.write(siblingPid, pf);
+        node.write(pid, pf);
+
+        if (pid == rootPid) {
+          // create new root node
+          BTNonLeafNode root;
+          rootPid = pf.endPid();
+          root.initializeRoot(pid, midKey, siblingPid);
+          root.write(rootPid, pf);
+          treeHeight++;
+
+          // this node needs to be initialized with left and right pid ?
+
+        } else {
+          // hand back new sibling pid and key
+          return RC_NODE_FULL;
+        }
+      } else {
+        // no overflow
+        node.insert(siblingKey, siblingPid);
+        node.write(pid, pf);
+      }
+    } else {
+      // it was successfully inserted without overflow
+    }
+
+  } else {
+    // we reached a leaf
+    BTLeafNode leaf;
+    leaf.read(pid, pf);
+
+    if (leaf.isFull()) {
+      BTLeafNode sibling;
+      leaf.insertAndSplit(key, rid, sibling, siblingKey);
+
+      // write both modified leaves
+      siblingPid = pf.endPid();
+      sibling.write(siblingPid, pf);
+      leaf.write(pid, pf);
+
+      if (pid == rootPid) {
+        // create new root node
+        BTNonLeafNode root;
+        rootPid = pf.endPid();
+        root.initializeRoot(pid, siblingKey, siblingPid);
+        root.write(rootPid, pf);
+        treeHeight++;
+
+      } else {
+        // recursively hands back siblingPid and siblingKey
+        return RC_NODE_FULL;
+      }
+
+    } else {
+      leaf.insert(key, rid);
+      leaf.write(pid, pf);
+    }
+  }
+
+  return 0;
+}
+
+void BTreeIndex::printIndex(int key) {
+  int curHeight = 1;
+
+  if (treeHeight == 1) {
+    BTLeafNode root;
+    root.read(rootPid, pf);
+    root.printNode(rootPid);
+    return;
+  }
+
+  PageId pid = rootPid;
+  while (curHeight < treeHeight){
+    // non leaf
+    BTNonLeafNode node;
+    node.read(pid, pf);
+    node.printNode(pid);
+    node.locateChildPtr(key, pid);
+    curHeight++;
+  }
+
+  // leaf
+  BTLeafNode leaf;
+  leaf.read(pid, pf);
+  leaf.printNode(pid);
 }
 
 /**
@@ -72,7 +207,7 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
  */
 RC BTreeIndex::locate(int searchKey, IndexCursor& cursor)
 {
-    return 0;
+  return 0;
 }
 
 /*
@@ -85,5 +220,5 @@ RC BTreeIndex::locate(int searchKey, IndexCursor& cursor)
  */
 RC BTreeIndex::readForward(IndexCursor& cursor, int& key, RecordId& rid)
 {
-    return 0;
+  return 0;
 }

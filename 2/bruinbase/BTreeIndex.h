@@ -13,7 +13,8 @@
 #include "Bruinbase.h"
 #include "PageFile.h"
 #include "RecordFile.h"
-             
+#include "BTreeNode.h"
+
 /**
  * The data structure to point to a particular entry at a b+tree leaf node.
  * An IndexCursor consists of pid (PageId of the leaf node) and 
@@ -87,7 +88,11 @@ class BTreeIndex {
    * @return error code. 0 if no error
    */
   RC readForward(IndexCursor& cursor, int& key, RecordId& rid);
-  
+
+  RC insertTraverse(int key, RecordId rid, PageId pid, PageId &siblingPid, int &siblingKey, int curHeight);
+
+  void printIndex(int key);
+
  private:
   PageFile pf;         /// the PageFile used to store the actual b+tree in disk
 

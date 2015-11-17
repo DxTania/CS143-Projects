@@ -5,6 +5,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES
     Bruinbase.h
+    BTreeIndex.cc
+    BTreeIndex.h
     BTreeNode.cc
     BTreeNode.h
     main.cc

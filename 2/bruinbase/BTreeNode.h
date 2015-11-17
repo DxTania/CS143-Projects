@@ -32,7 +32,9 @@ class BTLeafNode {
 
     void zeroLeafEntry(int entryNum);
 
-    void printNode();
+    void printNode(PageId pid);
+
+    bool isFull();
 
    /**
     * Insert the (key, rid) pair to the node.
@@ -142,7 +144,9 @@ class BTNonLeafNode {
 
   void zeroNonLeafEntry(int entryNum);
 
-  void printNode();
+  void printNode(PageId pid);
+
+  bool isFull();
 
   /**
     * Insert a (key, pid) pair to the node.
