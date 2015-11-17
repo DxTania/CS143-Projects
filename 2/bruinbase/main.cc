@@ -16,17 +16,16 @@
 int main()
 {
   // run the SQL engine taking user commands from standard input (console).
-//  SqlEngine::run(stdin);
+  SqlEngine::run(stdin);
 
-  RecordId rid = { 1, 2 };
-//  RecordId rid3 = {3, 4};
-  BTreeIndex* index = new BTreeIndex();
-  index->open("myindex", 'w');
-  index->insert(10, rid);
-  index->insert(20, rid);
-  index->insert(30, rid);
-  index->insert(40, rid);
-  index->printIndex(10);
-  index->close();
+//  RecordId rid = { 1, 2 };
+//  BTreeIndex* index = new BTreeIndex();
+//  index->open("myindex", 'w');
+//  index->insert(10, rid);
+//  index->insert(20, rid);
+//  index->insert(30, rid);
+//  index->insert(40, rid);
+//  index->printIndex(10);
+//  index->close();
   return 0;
 }

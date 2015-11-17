@@ -31,7 +31,7 @@ BTreeIndex::BTreeIndex()
 RC BTreeIndex::open(const string& indexname, char mode)
 {
   char buffer[PageFile::PAGE_SIZE];
-  if (pf.open(indexname + ".index", mode) == 0) {
+  if (pf.open(indexname, mode) == 0) {
     if (pf.endPid() == 0) {
       // create the index
       BTLeafNode leaf;
