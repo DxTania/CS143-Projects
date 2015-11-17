@@ -372,7 +372,7 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
     midKey = readNonLeafEntry(siblingStart)->key;
   }
 
-  // First init ptr for sibling node ??
+  // First init left ptr for sibling node ??
   PageId lastPid;
   memcpy(&lastPid, buffer + 2 * sizeof(PageId) + sizeof(NonLeafEntry) * siblingStart, sizeof(PageId));
   sibling.initializeRoot(lastPid, 0, 0);

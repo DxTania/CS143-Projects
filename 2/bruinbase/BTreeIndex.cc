@@ -30,17 +30,26 @@ BTreeIndex::BTreeIndex()
  */
 RC BTreeIndex::open(const string& indexname, char mode)
 {
-  rootPid = 0;
-  if (pf.open(indexname + ".index", mode) == 0) {
+  char buffer[PageFile::PAGE_SIZE];
+  if (pf.open(indexname + ".index5", mode) == 0) {
     if (pf.endPid() == 0) {
       // create the index
       BTLeafNode leaf;
       treeHeight = 1;
+      rootPid = 1;
+      memcpy(buffer, &treeHeight, sizeof(int));
+      memcpy(buffer + sizeof(int), &rootPid, sizeof(PageId));
+      pf.write(0, buffer);
       return leaf.write(rootPid, pf);
     } else {
-      BTLeafNode leaf;
-      treeHeight = 1;
-      return leaf.write(rootPid, pf);
+      // read tree height and root pid
+      int rc = pf.read(0, buffer);
+      if (rc < 0) {
+        return RC_FILE_READ_FAILED;
+      }
+      memcpy(&treeHeight, buffer, sizeof(PageId));
+      memcpy(&rootPid, buffer + sizeof(int), sizeof(PageId));
+      return rc;
     }
   }
 
@@ -53,6 +62,19 @@ RC BTreeIndex::open(const string& indexname, char mode)
  */
 RC BTreeIndex::close()
 {
+  char buffer[PageFile::PAGE_SIZE];
+  if (pf.read(0, buffer)) {
+    return RC_FILE_READ_FAILED;
+  }
+
+  // save tree height and root pid
+  memcpy(buffer, &treeHeight, sizeof(int));
+  memcpy(buffer + sizeof(int), &rootPid, sizeof(PageId));
+
+  if (pf.write(0, buffer) < 0) {
+    return RC_FILE_WRITE_FAILED;
+  }
+
   return pf.close();
 }
 
