@@ -9,6 +9,8 @@
  
 #include "BTreeIndex.h"
 #include "BTreeNode.h"
+#include <string.h>
+#include <iostream>
 
 using namespace std;
 
@@ -200,7 +202,9 @@ void BTreeIndex::printIndex(int key) {
     // non leaf
     BTNonLeafNode node;
     node.read(pid, pf);
-    node.printNode(pid);
+    if (key >= 0) {
+      node.printNode(pid);
+    }
     node.locateChildPtr(key, pid);
     curHeight++;
   }
@@ -208,7 +212,18 @@ void BTreeIndex::printIndex(int key) {
   // leaf
   BTLeafNode leaf;
   leaf.read(pid, pf);
-  leaf.printNode(pid);
+  if (key == -1) {
+    // print count
+    int count = 0;
+    while (pid != RC_END_OF_TREE) {
+      leaf.read(pid, pf);
+      count += leaf.getKeyCount();
+      pid = leaf.getNextNodePtr();
+    }
+    std::cout << count;
+  } else {
+    leaf.printNode(pid);
+  }
 }
 
 /**
@@ -263,11 +278,13 @@ RC BTreeIndex::locate(int searchKey, IndexCursor& cursor)
 RC BTreeIndex::readForward(IndexCursor& cursor, int& key, RecordId& rid)
 {
   BTLeafNode leaf;
-  leaf.read(cursor.pid, pf);
-  leaf.readEntry(cursor.eid, key, rid);
-  cursor.eid++;
+  if (leaf.read(cursor.pid, pf) < 0) {
+    return RC_FILE_READ_FAILED;
+  }
 
-  if (cursor.eid == leaf.getKeyCount()) {
+  int rc = leaf.readEntry(cursor.eid, key, rid);
+  cursor.eid++;
+  if (cursor.eid >= leaf.getKeyCount()) {
     cursor.eid = 0;
     cursor.pid = leaf.getNextNodePtr();
   }
@@ -275,5 +292,5 @@ RC BTreeIndex::readForward(IndexCursor& cursor, int& key, RecordId& rid)
   if (cursor.pid == RC_END_OF_TREE) { // use int min instead?
     return RC_END_OF_TREE;
   }
-  return 0;
+  return rc;
 }

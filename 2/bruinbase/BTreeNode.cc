@@ -1,10 +1,9 @@
 #include <iostream>
 #include <string.h>
 #include "BTreeNode.h"
-#define MAX_KEYS 2;
+#define MAX_KEYS 70;
 
 using namespace std;
-
 
 BTLeafNode::BTLeafNode()
 {

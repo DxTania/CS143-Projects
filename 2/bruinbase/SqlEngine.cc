@@ -53,7 +53,6 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
   }
 
   bool index = false;
-  bool finished = false;
   int keyStart = -1; // TODO: support negative keys
   IndexCursor cursor;
   rid.pid = rid.sid = 0;
@@ -61,6 +60,7 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
   BTreeIndex btree;
   if (btree.open(table + ".index", 'r') == 0) {
     index = true;
+
     for (long i = 0; i < cond.size(); i++) {
       // select on key value, use first condition as starting point
       if (cond[i].attr == 1) {
@@ -71,23 +71,25 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
             keyStart = atoi(cond[i].value);
             break;
           default:
-            // start at beginning of leaves
-            break;
+            // try to find eq or gt/ge
+            continue;
         }
-        btree.locate(keyStart, cursor);
-        rc = btree.readForward(cursor, key, rid); // error?
-        btree.printIndex(keyStart);
-        return 0;
         break;
       }
     }
+
+    // default keyStart is at beginning of tree, if no eq, gt, ge condition
+    btree.locate(keyStart, cursor);
+    rc = btree.readForward(cursor, key, rid); // error?
   }
 
-  // scan the table file from the beginning
   count = 0;
   while (index || rid < rf.endRid()) {
-
     bool lastTuple = rc == RC_END_OF_TREE;
+    if (rc == RC_NO_SUCH_RECORD) {
+      // skip to next valid record
+      goto next_tuple;
+    }
 
     // read the tuple
     if ((rc = rf.read(rid, key, value)) < 0) {
@@ -110,22 +112,39 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
       // skip the tuple if any condition is not met
       switch (cond[i].comp) {
         case SelCond::EQ:
-          if (diff != 0) goto next_tuple;
+          if (diff != 0) {
+            goto next_tuple;
+          }
+          else {
+            lastTuple = true;
+          }
           break;
         case SelCond::NE:
-          if (diff == 0) goto next_tuple;
+          if (diff == 0) {
+            goto next_tuple;
+          }
           break;
         case SelCond::GT:
-          if (diff <= 0) goto next_tuple;
+          if (diff <= 0) {
+            goto next_tuple;
+          }
           break;
         case SelCond::LT:
-          if (diff >= 0) goto next_tuple;
+          if (diff >= 0) {
+            lastTuple = true;
+            goto next_tuple;
+          }
           break;
         case SelCond::GE:
-          if (diff < 0) goto next_tuple;
+          if (diff < 0) {
+            goto next_tuple;
+          }
           break;
         case SelCond::LE:
-          if (diff > 0) goto next_tuple;
+          if (diff > 0) {
+            lastTuple = true;
+            goto next_tuple;
+          }
           break;
       }
     }
