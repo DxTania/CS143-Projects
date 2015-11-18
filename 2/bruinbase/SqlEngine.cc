@@ -64,6 +64,9 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
           case SelCond::GE:
             target = atoi(cond[i].value);
             break;
+          default:
+            break;
+            // start at beginning of leaves
         }
       }
     }
@@ -76,7 +79,6 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
       goto exit_select;
     }
 
-    // print the tuple
     switch (attr) {
       case 1:  // SELECT key
         fprintf(stdout, "%d\n", key);
@@ -88,6 +90,7 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
         fprintf(stdout, "%d '%s'\n", key, value.c_str());
         break;
     }
+
 
   } else {
     // scan the table file from the beginning
@@ -169,6 +172,7 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
   // close the table file and return
   exit_select:
   rf.close();
+  btree.close();
   return rc;
 }
 
