@@ -155,8 +155,10 @@ RC BTreeIndex::insertTraverse(int key, RecordId rid, PageId pid, PageId &sibling
       BTLeafNode sibling;
       leaf.insertAndSplit(key, rid, sibling, siblingKey);
 
-      // write both modified leaves and set next node ptr to sibling
       siblingPid = pf.endPid();
+      // set sibling next ptr to what leaf was pointing to
+      sibling.setNextNodePtr(leaf.getNextNodePtr());
+      // set leaf next ptr to sibling pid
       leaf.setNextNodePtr(siblingPid);
       sibling.write(siblingPid, pf);
       leaf.write(pid, pf);

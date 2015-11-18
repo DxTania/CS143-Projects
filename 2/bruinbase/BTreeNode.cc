@@ -1,8 +1,10 @@
 #include <iostream>
 #include <string.h>
 #include "BTreeNode.h"
+#define MAX_KEYS 2;
 
 using namespace std;
+
 
 BTLeafNode::BTLeafNode()
 {
@@ -72,7 +74,7 @@ int BTLeafNode::getKeyCount()
 
 bool BTLeafNode::isFull()
 {
-  return getKeyCount() == 4;
+  return getKeyCount() == MAX_KEYS;
 }
 
 /*
@@ -287,7 +289,7 @@ RC BTNonLeafNode::write(PageId pid, PageFile& pf)
 
 bool BTNonLeafNode::isFull()
 {
-  return getKeyCount() == 4;
+  return getKeyCount() == MAX_KEYS;
 }
 
 /*
