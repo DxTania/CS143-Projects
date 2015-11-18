@@ -72,7 +72,7 @@ int BTLeafNode::getKeyCount()
 
 bool BTLeafNode::isFull()
 {
-  return getKeyCount() == 3;
+  return getKeyCount() == 4;
 }
 
 /*
@@ -129,9 +129,15 @@ RC BTLeafNode::insertAndSplit(int key, const RecordId& rid,
   locate(key, pos);
 
   // Ensure half and half
-  if (pos < siblingStart && numEntries % 2 == 1) {
-    siblingStart--;
-    fixMin = true;
+  if (pos == siblingStart) {
+    if (numEntries % 2 == 0) {
+      // even entries
+      fixMin = true;
+    } else {
+      // odd entries
+    }
+  } else if (pos > siblingStart) {
+    siblingStart++;
   }
 
   // Copy half the keys into sibling.
@@ -281,7 +287,7 @@ RC BTNonLeafNode::write(PageId pid, PageFile& pf)
 
 bool BTNonLeafNode::isFull()
 {
-  return getKeyCount() == 3;
+  return getKeyCount() == 4;
 }
 
 /*
@@ -364,20 +370,20 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
   // Copy half the keys into sibling. One more key on left side.
   int siblingStart = (numEntries + 1) / 2;
   if (pos == siblingStart) {
-    // Don't need to insert this key
+    // Don't need to insert this key, but should insert pid
     midKey = key;
+    sibling.initializeRoot(pid, 0, 0);
   } else {
     // we have to bubble up a key
     if (pos < siblingStart) {
       siblingStart--;
     }
     midKey = readNonLeafEntry(siblingStart)->key;
+    // init left ptr for sibling node
+    PageId lastPid;
+    memcpy(&lastPid, buffer + 2 * sizeof(PageId) + sizeof(NonLeafEntry) * siblingStart, sizeof(PageId));
+    sibling.initializeRoot(lastPid, 0, 0);
   }
-
-  // First init left ptr for sibling node ??
-  PageId lastPid;
-  memcpy(&lastPid, buffer + 2 * sizeof(PageId) + sizeof(NonLeafEntry) * siblingStart, sizeof(PageId));
-  sibling.initializeRoot(lastPid, 0, 0);
 
   for (int i = siblingStart; i < numEntries; i++) {
     NonLeafEntry* entry = readNonLeafEntry(i);

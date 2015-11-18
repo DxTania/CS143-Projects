@@ -52,33 +52,89 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
     return rc;
   }
 
+  bool index = false;
+  bool finished = false;
+  int keyStart = -1; // TODO: support negative keys
+  IndexCursor cursor;
+  rid.pid = rid.sid = 0;
+
   BTreeIndex btree;
   if (btree.open(table + ".index", 'r') == 0) {
-    int target;
+    index = true;
     for (long i = 0; i < cond.size(); i++) {
-      // index only on key
-      if (cond[i].attr == 1) { // select on key value
+      // select on key value, use first condition as starting point
+      if (cond[i].attr == 1) {
         switch (cond[i].comp) {
           case SelCond::EQ:
           case SelCond::GT:
           case SelCond::GE:
-            target = atoi(cond[i].value);
+            keyStart = atoi(cond[i].value);
             break;
           default:
-            break;
             // start at beginning of leaves
+            break;
         }
+        btree.locate(keyStart, cursor);
+        rc = btree.readForward(cursor, key, rid); // error?
+        btree.printIndex(keyStart);
+        return 0;
+        break;
       }
     }
+  }
 
-    IndexCursor cursor;
-    btree.locate(target, cursor);
-    btree.readForward(cursor, key, rid);
+  // scan the table file from the beginning
+  count = 0;
+  while (index || rid < rf.endRid()) {
+
+    bool lastTuple = rc == RC_END_OF_TREE;
+
+    // read the tuple
     if ((rc = rf.read(rid, key, value)) < 0) {
       fprintf(stderr, "Error: while reading a tuple from table %s\n", table.c_str());
       goto exit_select;
     }
 
+    // check the conditions on the tuple
+    for (unsigned i = 0; i < cond.size(); i++) {
+      // compute the difference between the tuple value and the condition value
+      switch (cond[i].attr) {
+        case 1:
+          diff = key - atoi(cond[i].value);
+          break;
+        case 2:
+          diff = strcmp(value.c_str(), cond[i].value);
+          break;
+      }
+
+      // skip the tuple if any condition is not met
+      switch (cond[i].comp) {
+        case SelCond::EQ:
+          if (diff != 0) goto next_tuple;
+          break;
+        case SelCond::NE:
+          if (diff == 0) goto next_tuple;
+          break;
+        case SelCond::GT:
+          if (diff <= 0) goto next_tuple;
+          break;
+        case SelCond::LT:
+          if (diff >= 0) goto next_tuple;
+          break;
+        case SelCond::GE:
+          if (diff < 0) goto next_tuple;
+          break;
+        case SelCond::LE:
+          if (diff > 0) goto next_tuple;
+          break;
+      }
+    }
+
+    // the condition is met for the tuple.
+    // increase matching tuple counter
+    count++;
+
+    // print the tuple
     switch (attr) {
       case 1:  // SELECT key
         fprintf(stdout, "%d\n", key);
@@ -91,77 +147,17 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
         break;
     }
 
-
-  } else {
-    // scan the table file from the beginning
-    rid.pid = rid.sid = 0;
-    count = 0;
-    while (rid < rf.endRid()) {
-      // read the tuple
-      if ((rc = rf.read(rid, key, value)) < 0) {
-        fprintf(stderr, "Error: while reading a tuple from table %s\n", table.c_str());
-        goto exit_select;
-      }
-
-      // check the conditions on the tuple
-      for (unsigned i = 0; i < cond.size(); i++) {
-        // compute the difference between the tuple value and the condition value
-        switch (cond[i].attr) {
-          case 1:
-            diff = key - atoi(cond[i].value);
-            break;
-          case 2:
-            diff = strcmp(value.c_str(), cond[i].value);
-            break;
+    // move to the next tuple
+    next_tuple:
+      if (index) {
+        if (lastTuple) {
+          break;
         }
-
-        // skip the tuple if any condition is not met
-        switch (cond[i].comp) {
-          case SelCond::EQ:
-            if (diff != 0) goto next_tuple;
-            break;
-          case SelCond::NE:
-            if (diff == 0) goto next_tuple;
-            break;
-          case SelCond::GT:
-            if (diff <= 0) goto next_tuple;
-            break;
-          case SelCond::LT:
-            if (diff >= 0) goto next_tuple;
-            break;
-          case SelCond::GE:
-            if (diff < 0) goto next_tuple;
-            break;
-          case SelCond::LE:
-            if (diff > 0) goto next_tuple;
-            break;
-        }
+        rc = btree.readForward(cursor, key, rid);
+      } else {
+        ++rid;
       }
-
-      // the condition is met for the tuple.
-      // increase matching tuple counter
-      count++;
-
-      // print the tuple
-      switch (attr) {
-        case 1:  // SELECT key
-          fprintf(stdout, "%d\n", key);
-          break;
-        case 2:  // SELECT value
-          fprintf(stdout, "%s\n", value.c_str());
-          break;
-        case 3:  // SELECT *
-          fprintf(stdout, "%d '%s'\n", key, value.c_str());
-          break;
-      }
-
-      // move to the next tuple
-      next_tuple:
-      ++rid;
-    }
   }
-
-
 
   // print matching tuple count if "select count(*)"
   if (attr == 4) {

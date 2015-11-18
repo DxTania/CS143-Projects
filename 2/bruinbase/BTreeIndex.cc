@@ -132,10 +132,9 @@ RC BTreeIndex::insertTraverse(int key, RecordId rid, PageId pid, PageId &sibling
           root.write(rootPid, pf);
           treeHeight++;
 
-          // this node needs to be initialized with left and right pid ?
-
         } else {
           // hand back new sibling pid and key
+          siblingKey = midKey;
           return RC_NODE_FULL;
         }
       } else {
