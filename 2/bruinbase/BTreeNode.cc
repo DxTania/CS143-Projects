@@ -7,7 +7,9 @@ using namespace std;
 
 BTLeafNode::BTLeafNode()
 {
+  // is leaf, last byte is 1
   memset(buffer, 0, PageFile::PAGE_SIZE);
+  memset(buffer + PageFile::PAGE_SIZE - 1, true, 1);
   setNextNodePtr(RC_END_OF_TREE);
 }
 
@@ -58,7 +60,7 @@ RC BTLeafNode::write(PageId pid, PageFile& pf)
 int BTLeafNode::getKeyCount()
 {
   int numEntries;
-  int maxEntries = (PageFile::PAGE_SIZE - sizeof(PageId)) / sizeof(LeafEntry);
+  int maxEntries = (PageFile::PAGE_SIZE - sizeof(PageId) - 1) / sizeof(LeafEntry);
 
   for (numEntries = 0; numEntries < maxEntries; numEntries++) {
     LeafEntry* entry = readLeafEntry(numEntries);
@@ -84,7 +86,7 @@ bool BTLeafNode::isFull()
  */
 RC BTLeafNode::insert(int key, const RecordId& rid)
 {
-  int maxEntries = (PageFile::PAGE_SIZE - sizeof(PageId)) / sizeof(LeafEntry);
+  int maxEntries = (PageFile::PAGE_SIZE - sizeof(PageId) - 1) / sizeof(LeafEntry);
   int numEntries = getKeyCount();
 
   if (numEntries < maxEntries) {
@@ -212,7 +214,7 @@ RC BTLeafNode::readEntry(int eid, int& key, RecordId& rid)
 PageId BTLeafNode::getNextNodePtr()
 {
   PageId pid;
-  memcpy(&pid, buffer + PageFile::PAGE_SIZE - sizeof(PageId), sizeof(PageId));
+  memcpy(&pid, buffer + PageFile::PAGE_SIZE - sizeof(PageId) - 1, sizeof(PageId));
   return pid;
 }
 
@@ -223,7 +225,7 @@ PageId BTLeafNode::getNextNodePtr()
  */
 RC BTLeafNode::setNextNodePtr(PageId pid)
 {
-  memcpy(buffer + PageFile::PAGE_SIZE - sizeof(PageId), &pid, sizeof(PageId));
+  memcpy(buffer + PageFile::PAGE_SIZE - sizeof(PageId) - 1, &pid, sizeof(PageId));
   return 0;
 }
 
@@ -298,7 +300,7 @@ bool BTNonLeafNode::isFull()
 int BTNonLeafNode::getKeyCount()
 {
   int numEntries;
-  int maxEntries = (PageFile::PAGE_SIZE - sizeof(PageId)) / sizeof(NonLeafEntry);
+  int maxEntries = (PageFile::PAGE_SIZE - sizeof(PageId) - 1) / sizeof(NonLeafEntry);
 
   for (numEntries = 0; numEntries < maxEntries; numEntries++) {
     NonLeafEntry* entry = readNonLeafEntry(numEntries);
@@ -321,7 +323,7 @@ int BTNonLeafNode::getKeyCount()
 RC BTNonLeafNode::insert(int key, PageId pid)
 {
   int numEntries = getKeyCount();
-  int maxEntries = (PageFile::PAGE_SIZE - sizeof(PageId)) / sizeof(NonLeafEntry);
+  int maxEntries = (PageFile::PAGE_SIZE - sizeof(PageId) - 1) / sizeof(NonLeafEntry);
 
   if (numEntries < maxEntries) {
 

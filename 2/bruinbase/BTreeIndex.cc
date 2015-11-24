@@ -33,26 +33,14 @@ BTreeIndex::BTreeIndex()
 RC BTreeIndex::open(const string& indexname, char mode)
 {
   char buffer[PageFile::PAGE_SIZE];
+  rootPid = 0;
   if (pf.open(indexname, mode) == 0) {
     if (pf.endPid() == 0) {
       // create the index
       BTLeafNode leaf;
-      treeHeight = 1;
-      rootPid = 1;
-      memcpy(buffer, &treeHeight, sizeof(int));
-      memcpy(buffer + sizeof(int), &rootPid, sizeof(PageId));
-      pf.write(0, buffer);
       return leaf.write(rootPid, pf);
-    } else {
-      // read tree height and root pid
-      int rc = pf.read(0, buffer);
-      if (rc < 0) {
-        return RC_FILE_READ_FAILED;
-      }
-      memcpy(&treeHeight, buffer, sizeof(PageId));
-      memcpy(&rootPid, buffer + sizeof(int), sizeof(PageId));
-      return rc;
     }
+    return 0;
   }
 
   return RC_FILE_OPEN_FAILED;
@@ -64,19 +52,6 @@ RC BTreeIndex::open(const string& indexname, char mode)
  */
 RC BTreeIndex::close()
 {
-  char buffer[PageFile::PAGE_SIZE];
-  if (pf.read(0, buffer)) {
-    return RC_FILE_READ_FAILED;
-  }
-
-  // save tree height and root pid
-  memcpy(buffer, &treeHeight, sizeof(int));
-  memcpy(buffer + sizeof(int), &rootPid, sizeof(PageId));
-
-  if (pf.write(0, buffer) < 0) {
-    return RC_FILE_WRITE_FAILED;
-  }
-
   return pf.close();
 }
 
@@ -105,34 +80,39 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
  */
 RC BTreeIndex::insertTraverse(int key, RecordId rid, PageId pid, PageId &siblingPid, int &siblingKey, int curHeight)
 {
-  if (curHeight < treeHeight) {
+  char buffer[PageFile::PAGE_SIZE];
+  pf.read(pid, buffer);
+  bool isLeaf;
+  memcpy(&isLeaf, buffer + PageFile::PAGE_SIZE - 1, 1);
+
+  if (!isLeaf) {
     // non leaf nodes
-    BTNonLeafNode node;
-    node.read(pid, pf);
+    BTNonLeafNode* node = (BTNonLeafNode*) buffer;
 
     PageId childPid;
-    node.locateChildPtr(key, childPid);
+    node->locateChildPtr(key, childPid);
 
     int rc = insertTraverse(key, rid, childPid, siblingPid, siblingKey, curHeight + 1);
     if (rc == RC_NODE_FULL) {
       // we split into two
 
-      if (node.isFull()) {
+      if (node->isFull()) {
         // overflow, split here too. check if we are root
         BTNonLeafNode sibling;
         int midKey;
-        node.insertAndSplit(siblingKey, siblingPid, sibling, midKey);
+        node->insertAndSplit(siblingKey, siblingPid, sibling, midKey);
         siblingPid = pf.endPid();
         sibling.write(siblingPid, pf);
-        node.write(pid, pf);
+        node->write(pid, pf);
 
         if (pid == rootPid) {
           // create new root node
           BTNonLeafNode root;
-          rootPid = pf.endPid();
+          pid = pf.endPid();
+          node->write(pid, pf);
+
           root.initializeRoot(pid, midKey, siblingPid);
           root.write(rootPid, pf);
-          treeHeight++;
 
         } else {
           // hand back new sibling pid and key
@@ -141,8 +121,8 @@ RC BTreeIndex::insertTraverse(int key, RecordId rid, PageId pid, PageId &sibling
         }
       } else {
         // no overflow
-        node.insert(siblingKey, siblingPid);
-        node.write(pid, pf);
+        node->insert(siblingKey, siblingPid);
+        node->write(pid, pf);
       }
     } else {
       // it was successfully inserted without overflow
@@ -150,28 +130,27 @@ RC BTreeIndex::insertTraverse(int key, RecordId rid, PageId pid, PageId &sibling
 
   } else {
     // we reached a leaf
-    BTLeafNode leaf;
-    leaf.read(pid, pf);
+    BTLeafNode* leaf = (BTLeafNode*) buffer;
 
-    if (leaf.isFull()) {
+    if (leaf->isFull()) {
       BTLeafNode sibling;
-      leaf.insertAndSplit(key, rid, sibling, siblingKey);
+      leaf->insertAndSplit(key, rid, sibling, siblingKey);
 
       siblingPid = pf.endPid();
       // set sibling next ptr to what leaf was pointing to
-      sibling.setNextNodePtr(leaf.getNextNodePtr());
+      sibling.setNextNodePtr(leaf->getNextNodePtr());
       // set leaf next ptr to sibling pid
-      leaf.setNextNodePtr(siblingPid);
+      leaf->setNextNodePtr(siblingPid);
       sibling.write(siblingPid, pf);
-      leaf.write(pid, pf);
+      leaf->write(pid, pf);
 
       if (pid == rootPid) {
         // create new root node
         BTNonLeafNode root;
-        rootPid = pf.endPid();
+        pid = pf.endPid();
+        leaf->write(pid, pf);
         root.initializeRoot(pid, siblingKey, siblingPid);
         root.write(rootPid, pf);
-        treeHeight++;
 
       } else {
         // recursively hands back siblingPid and siblingKey
@@ -179,8 +158,8 @@ RC BTreeIndex::insertTraverse(int key, RecordId rid, PageId pid, PageId &sibling
       }
 
     } else {
-      leaf.insert(key, rid);
-      leaf.write(pid, pf);
+      leaf->insert(key, rid);
+      leaf->write(pid, pf);
     }
   }
 
@@ -247,24 +226,28 @@ void BTreeIndex::printIndex(int key) {
 RC BTreeIndex::locate(int searchKey, IndexCursor& cursor)
 {
 
-  // Go to leaf node
+  // Go to leaf node start at root
   PageId pid = rootPid;
-  for (int i = 1; i < treeHeight; i++) {
-    BTNonLeafNode nonLeafNode;
-    if (nonLeafNode.read(pid, pf) < 0) {
+  char buffer[PageFile::PAGE_SIZE];
+  bool isLeaf;
+
+  for(;;) {
+    if (pf.read(pid, buffer) < 0) {
       return RC_FILE_READ_FAILED;
     }
-    nonLeafNode.locateChildPtr(searchKey, pid);
+    memcpy(&isLeaf, buffer + PageFile::PAGE_SIZE - 1, 1);
+    if (isLeaf) {
+      // we found the leaf!
+      break;
+    }
+    BTNonLeafNode *nonLeafNode = (BTNonLeafNode*) buffer;
+    nonLeafNode->locateChildPtr(searchKey, pid);
   }
 
   // Read leaf node
-  BTLeafNode leaf;
-  if (leaf.read(pid, pf) < 0) {
-    return RC_FILE_READ_FAILED;
-  }
-
+  BTLeafNode *leaf = (BTLeafNode*) buffer;
   cursor.pid = pid;
-  return leaf.locate(searchKey, cursor.eid);
+  return leaf->locate(searchKey, cursor.eid);
 }
 
 /*
