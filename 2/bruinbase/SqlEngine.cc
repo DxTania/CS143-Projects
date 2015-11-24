@@ -58,11 +58,11 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
   rid.pid = rid.sid = 0;
 
   BTreeIndex btree;
+  bool readValue = false;
   if (btree.open(table + ".idx", 'r') == 0 && (cond.size() > 0 || attr == 4 || attr == 1)) {
     index = true;
     bool foundRange = false;
     for (long i = 0; i < cond.size(); i++) {
-      // select on key value, use first condition as starting point
       if (cond[i].attr == 1) {
         switch (cond[i].comp) {
           case SelCond::EQ:
@@ -77,7 +77,7 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
             foundRange = true;
             index = true;
           case SelCond::NE:
-            // don't use index if no range and looking for value
+            // don't use index if no range and selecting value
             if (!foundRange && (attr == 2 || attr == 3)) {
               index = false;
             }
@@ -85,7 +85,13 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
             // try to find eq or gt/ge
             continue;
         }
-        break;
+      } else {
+        // condition on value, must read value
+        readValue = true;
+        if (!foundRange) {
+          // don't use index unless we find a key range
+          index = false;
+        }
       }
     }
 
@@ -99,13 +105,14 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
   count = 0;
   while (index || rid < rf.endRid()) {
     bool lastTuple = rc == RC_END_OF_TREE;
+    bool nextTuple = false;
     if (rc == RC_NO_SUCH_RECORD) {
       // skip to next valid record
       goto next_tuple;
     }
 
     // read the tuple, only if scanning or select value, *
-    if (((index && attr != 4 && attr != 1) || !index) && (rc = rf.read(rid, key, value)) < 0) {
+    if (((index && attr != 4 && attr != 1) || !index || readValue) && (rc = rf.read(rid, key, value)) < 0) {
       fprintf(stderr, "Error: while reading a tuple from table %s\n", table.c_str());
       goto exit_select;
     }
@@ -126,7 +133,7 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
       switch (cond[i].comp) {
         case SelCond::EQ:
           if (diff != 0) {
-            goto next_tuple;
+            nextTuple = true;
           }
           else {
             lastTuple = true;
@@ -134,32 +141,36 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
           break;
         case SelCond::NE:
           if (diff == 0) {
-            goto next_tuple;
+            nextTuple = true;
           }
           break;
         case SelCond::GT:
           if (diff <= 0) {
-            goto next_tuple;
+            nextTuple = true;
           }
           break;
         case SelCond::LT:
           if (diff >= 0) {
             lastTuple = true;
-            goto next_tuple;
+            nextTuple = true;
           }
           break;
         case SelCond::GE:
           if (diff < 0) {
-            goto next_tuple;
+            nextTuple = true;
           }
           break;
         case SelCond::LE:
           if (diff > 0) {
             lastTuple = true;
-            goto next_tuple;
+            nextTuple = true;
           }
           break;
       }
+    }
+
+    if (nextTuple) {
+      goto next_tuple;
     }
 
     // the condition is met for the tuple.
