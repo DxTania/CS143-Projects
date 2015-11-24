@@ -58,19 +58,29 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
   rid.pid = rid.sid = 0;
 
   BTreeIndex btree;
-  if (btree.open(table + ".idx", 'r') == 0) {
+  if (btree.open(table + ".idx", 'r') == 0 && (cond.size() > 0 || attr == 4 || attr == 1)) {
     index = true;
-
+    bool foundRange = false;
     for (long i = 0; i < cond.size(); i++) {
       // select on key value, use first condition as starting point
       if (cond[i].attr == 1) {
         switch (cond[i].comp) {
           case SelCond::EQ:
+            index = true;
             keyStart = atoi(cond[i].value);
             break;
           case SelCond::GT:
           case SelCond::GE:
             keyStart = max(keyStart, atoi(cond[i].value));
+          case SelCond::LE:
+          case SelCond::LT:
+            foundRange = true;
+            index = true;
+          case SelCond::NE:
+            // don't use index if no range and looking for value
+            if (!foundRange && (attr == 2 || attr == 3)) {
+              index = false;
+            }
           default:
             // try to find eq or gt/ge
             continue;
@@ -80,8 +90,10 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
     }
 
     // default keyStart is at beginning of tree, if no eq, gt, ge condition
-    btree.locate(keyStart, cursor);
-    rc = btree.readForward(cursor, key, rid); // error?
+    if (index) {
+      btree.locate(keyStart, cursor);
+      rc = btree.readForward(cursor, key, rid); // error?
+    }
   }
 
   count = 0;
@@ -92,8 +104,8 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
       goto next_tuple;
     }
 
-    // read the tuple
-    if (attr != 4 && (rc = rf.read(rid, key, value)) < 0) {
+    // read the tuple, only if scanning or select value, *
+    if (((index && attr != 4 && attr != 1) || !index) && (rc = rf.read(rid, key, value)) < 0) {
       fprintf(stderr, "Error: while reading a tuple from table %s\n", table.c_str());
       goto exit_select;
     }
