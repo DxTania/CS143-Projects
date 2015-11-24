@@ -58,7 +58,7 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
   rid.pid = rid.sid = 0;
 
   BTreeIndex btree;
-  if (btree.open(table + ".index", 'r') == 0) {
+  if (btree.open(table + ".idx", 'r') == 0) {
     index = true;
 
     for (long i = 0; i < cond.size(); i++) {
@@ -66,10 +66,11 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
       if (cond[i].attr == 1) {
         switch (cond[i].comp) {
           case SelCond::EQ:
-          case SelCond::GT:
-          case SelCond::GE:
             keyStart = atoi(cond[i].value);
             break;
+          case SelCond::GT:
+          case SelCond::GE:
+            keyStart = max(keyStart, atoi(cond[i].value));
           default:
             // try to find eq or gt/ge
             continue;
@@ -210,7 +211,7 @@ RC SqlEngine::load(const string& table, const string& loadfile, bool index)
   BTreeIndex btree;
 
   if (index) {
-    status = btree.open(table + ".index", 'w');
+    status = btree.open(table + ".idx", 'w');
     if (status < 0) {
       return status;
     }
