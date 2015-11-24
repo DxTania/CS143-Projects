@@ -92,7 +92,7 @@ RC SqlEngine::select(int attr, const string& table, const vector<SelCond>& cond)
     }
 
     // read the tuple
-    if ((rc = rf.read(rid, key, value)) < 0) {
+    if (attr != 4 && (rc = rf.read(rid, key, value)) < 0) {
       fprintf(stderr, "Error: while reading a tuple from table %s\n", table.c_str());
       goto exit_select;
     }
